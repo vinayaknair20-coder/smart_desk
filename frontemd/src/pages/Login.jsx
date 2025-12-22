@@ -1,4 +1,4 @@
-// src/pages/Login.jsx
+// src/pages/Login.jsx - FINAL FIXED VERSION
 import { useState } from "react";
 import axios from "axios";
 
@@ -103,13 +103,20 @@ export default function Login({ onLoggedIn }) {
         password,
       });
 
-      // Save proper tokens
+      // Save tokens
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
 
-      // Optional: quick debug in console
-      console.log("access token:", localStorage.getItem("access")?.slice(0, 25));
-      console.log("refresh token:", localStorage.getItem("refresh")?.slice(0, 25));
+      // Save user info (role + user_id) - CRITICAL FOR ROUTING
+      if (res.data.user) {
+        const role = res.data.user.role.toString(); // Convert to string
+        const userId = res.data.user.id.toString();
+        
+        localStorage.setItem("role", role);
+        localStorage.setItem("user_id", userId);
+        
+        console.log("✅ Login successful - Role:", role, "User ID:", userId);
+      }
 
       if (onLoggedIn) onLoggedIn();
     } catch (err) {

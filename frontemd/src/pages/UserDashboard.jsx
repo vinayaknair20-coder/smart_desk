@@ -1,9 +1,6 @@
-// src/pages/UserDashboard.jsx
+// src/pages/UserDashboard.jsx - BULLETPROOF VERSION with api client
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-// ===== API base =====
-const API_BASE = "http://127.0.0.1:8000";
+import api from "../api/client";
 
 // ===== Layout + Typography =====
 const pageStyle = {
@@ -193,15 +190,17 @@ const statusBadgeBase = {
 
 function getStatusStyle(status) {
   const base = { ...statusBadgeBase };
-  if (status === "Open") {
+  const normalized = (status || "").toLowerCase();
+
+  if (normalized === "open") {
     base.background = "#0f172a";
     base.color = "#facc15";
     base.border = "1px solid #facc15";
-  } else if (status === "In Progress") {
+  } else if (normalized === "in progress") {
     base.background = "#1d283a";
     base.color = "#93c5fd";
     base.border = "1px solid #3b82f6";
-  } else if (status === "Resolved") {
+  } else if (normalized === "resolved" || normalized === "closed") {
     base.background = "#052e16";
     base.color = "#bbf7d0";
     base.border = "1px solid #22c55e";
@@ -215,19 +214,21 @@ function getStatusStyle(status) {
 
 function getPriorityStyle(priority) {
   const base = { ...statusBadgeBase };
-  if (priority === "Low") {
+  const normalized = (priority || "").toLowerCase();
+
+  if (normalized === "low") {
     base.background = "#052e16";
     base.color = "#bbf7d0";
     base.border = "1px solid #22c55e";
-  } else if (priority === "Medium") {
+  } else if (normalized === "medium") {
     base.background = "#0f172a";
     base.color = "#facc15";
     base.border = "1px solid #facc15";
-  } else if (priority === "High") {
+  } else if (normalized === "high") {
     base.background = "#1d283a";
     base.color = "#93c5fd";
     base.border = "1px solid #3b82f6";
-  } else if (priority === "Urgent") {
+  } else if (normalized === "urgent") {
     base.background = "#7f1d1d";
     base.color = "#fecaca";
     base.border = "1px solid #ef4444";
@@ -317,15 +318,14 @@ const errorBoxStyle = {
 
 // ===== Priority & Queue options =====
 const PRIORITY_OPTIONS = [
-  { id: 1, label: "Low" },
+  { id: 1, label: "High" },
   { id: 2, label: "Medium" },
-  { id: 3, label: "High" },
-  { id: 4, label: "Urgent" },
+  { id: 3, label: "Low" },
 ];
 
 const QUEUE_OPTIONS = [
-  { id: 1, label: "IT" },
-  { id: 2, label: "HR" },
+  { id: 1, label: "HR" },
+  { id: 2, label: "IT" },
   { id: 3, label: "Facilities" },
   { id: 4, label: "Other" },
 ];
@@ -353,34 +353,23 @@ export default function UserDashboard({ onLogout }) {
   const [newPriority, setNewPriority] = useState("2");
   const [newDesc, setNewDesc] = useState("");
 
-  const token = localStorage.getItem("access");
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
-
   // ===== Tickets list =====
   const fetchTickets = () => {
-    if (!token) return;
-    axios
-      .get(`${API_BASE}/api/tickets/`, { headers: authHeaders })
+    api.get("/api/tickets/")
       .then((res) => setTickets(res.data))
       .catch(() => setTickets([]));
   };
 
   // ===== Ticket detail + comments =====
   const fetchTicketDetail = async (ticketId) => {
-    if (!token) return;
     setLoadingDetail(true);
     try {
-      const ticketRes = await axios.get(
-        `${API_BASE}/api/tickets/${ticketId}/`,
-        { headers: authHeaders }
-      );
+      const ticketRes = await api.get(`/api/tickets/${ticketId}/`);
       setTicketDetail(ticketRes.data);
 
       if (ticketRes.data.thread_id) {
-        const threadRes = await axios.get(
-          `${API_BASE}/api/threads/${ticketRes.data.thread_id}/`,
-          { headers: authHeaders }
-        );
+        // FIXED: Changed from /api/threads/ to /api/comment-threads/
+        const threadRes = await api.get(`/api/comment-threads/${ticketRes.data.thread_id}/`);
         setComments(threadRes.data.comments || []);
       } else {
         setComments([]);
@@ -392,22 +381,29 @@ export default function UserDashboard({ onLogout }) {
     }
   };
 
+  // ===== Update ticket status (PATCH) =====
+  const updateTicketStatus = async (ticketId, newStatus) => {
+    try {
+      await api.patch(`/api/tickets/${ticketId}/`, { status: newStatus });
+      await fetchTickets();
+      await fetchTicketDetail(ticketId);
+    } catch (error) {
+      console.error("Failed to update status:", error.response?.data || error);
+    }
+  };
+
   // ===== Post new comment =====
   const handlePostComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-    if (!token || !ticketDetail?.thread_id) return;
+    if (!ticketDetail?.thread_id) return;
 
     setPostingComment(true);
     try {
-      await axios.post(
-        `${API_BASE}/api/comments/`,
-        {
-          thread: ticketDetail.thread_id,
-          comment: newComment,
-        },
-        { headers: authHeaders }
-      );
+      await api.post("/api/comments/", {
+        thread: ticketDetail.thread_id,
+        comment: newComment,
+      });
       setNewComment("");
       await fetchTicketDetail(selectedTicketId);
     } catch (error) {
@@ -423,7 +419,6 @@ export default function UserDashboard({ onLogout }) {
 
   useEffect(() => {
     fetchTickets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleTicketClick = (ticketId) => {
@@ -441,21 +436,31 @@ export default function UserDashboard({ onLogout }) {
   };
 
   const filteredTickets = tickets.filter((t) => {
+    const statusLabel = (t.status_label || "").toLowerCase();
     const matchStatus =
-      filterStatus === "all" || t.status?.toLowerCase() === filterStatus;
+      filterStatus === "all" ||
+      statusLabel === filterStatus ||
+      (filterStatus === "resolved" && statusLabel === "closed");
+
     const q = search.toLowerCase();
     const matchSearch =
       !q ||
       t.subject?.toLowerCase().includes(q) ||
-      t.id?.toString().includes(q) ||
-      t.requester_name?.toLowerCase().includes(q);
+      t.id?.toString().includes(q);
+
     return matchStatus && matchSearch;
   });
 
   const total = tickets.length;
-  const openCount = tickets.filter((t) => t.status === "Open").length;
-  const progressCount = tickets.filter((t) => t.status === "In Progress").length;
-  const resolvedCount = tickets.filter((t) => t.status === "Resolved").length;
+  const openCount = tickets.filter(
+    (t) => (t.status_label || "").toLowerCase() === "open"
+  ).length;
+  const resolvedCount = tickets.filter(
+    (t) => (t.status_label || "").toLowerCase() === "closed"
+  ).length;
+  const progressCount = tickets.filter(
+    (t) => (t.status_label || "").toLowerCase() === "in progress"
+  ).length;
 
   const resetNewTicketForm = () => {
     setNewTitle("");
@@ -471,21 +476,16 @@ export default function UserDashboard({ onLogout }) {
       setCreateError("Subject and description are required.");
       return;
     }
-    if (!token) return;
 
     setCreating(true);
     setCreateError("");
     try {
-      await axios.post(
-        `${API_BASE}/api/tickets/`,
-        {
-          subject: newTitle,
-          description: newDesc,
-          queue: Number(newQueue),
-          priority_id: Number(newPriority),
-        },
-        { headers: authHeaders }
-      );
+      await api.post("/api/tickets/", {
+        subject: newTitle,
+        description: newDesc,
+        queue: Number(newQueue),
+        priority_id: Number(newPriority),
+      });
       setCreating(false);
       setShowNewModal(false);
       resetNewTicketForm();
@@ -548,7 +548,7 @@ export default function UserDashboard({ onLogout }) {
         <div style={filterRowStyle}>
           <input
             style={searchInputStyle}
-            placeholder="Search by ID, subject, or requester..."
+            placeholder="Search by ID or subject..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -614,22 +614,18 @@ export default function UserDashboard({ onLogout }) {
                     <td style={tdBase}>#{t.id}</td>
                     <td style={tdBase}>{t.subject}</td>
                     <td style={tdBase}>
-                      <span style={getStatusStyle(t.status)}>
-                        {t.status || "—"}
+                      <span style={getStatusStyle(t.status_label)}>
+                        {t.status_label || "—"}
                       </span>
                     </td>
                     <td style={tdBase}>
-                      <span
-                        style={getPriorityStyle(
-                          t.priority_label || t.priority
-                        )}
-                      >
-                        {t.priority_label || t.priority || "—"}
+                      <span style={getPriorityStyle(t.priority_label)}>
+                        {t.priority_label || "—"}
                       </span>
                     </td>
                     <td style={tdBase}>
-                      {t.created_at
-                        ? new Date(t.created_at).toLocaleString()
+                      {t.creation_time
+                        ? new Date(t.creation_time).toLocaleString()
                         : "—"}
                     </td>
                   </tr>
@@ -827,8 +823,8 @@ export default function UserDashboard({ onLogout }) {
                       >
                         Status:
                       </span>
-                      <span style={getStatusStyle(ticketDetail.status)}>
-                        {ticketDetail.status || "—"}
+                      <span style={getStatusStyle(ticketDetail.status_label)}>
+                        {ticketDetail.status_label || "—"}
                       </span>
                     </div>
                     <div>
@@ -864,10 +860,48 @@ export default function UserDashboard({ onLogout }) {
                         "—"}
                     </div>
                   </div>
+
+                  {/* Status action buttons */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {(ticketDetail.status === 1 ||
+                      (ticketDetail.status_label || "")
+                        .toLowerCase()
+                        .includes("open")) && (
+                      <button
+                        type="button"
+                        style={outlineBtnStyle}
+                        onClick={() => updateTicketStatus(ticketDetail.id, 2)}
+                      >
+                        Mark Resolved
+                      </button>
+                    )}
+
+                    {(ticketDetail.status === 2 ||
+                      (ticketDetail.status_label || "")
+                        .toLowerCase()
+                        .includes("closed")) && (
+                      <button
+                        type="button"
+                        style={outlineBtnStyle}
+                        onClick={() => updateTicketStatus(ticketDetail.id, 1)}
+                      >
+                        Reopen
+                      </button>
+                    )}
+                  </div>
+
                   <div
                     style={{
                       fontSize: "11px",
                       color: "#9ca3af",
+                      marginTop: "10px",
                       marginBottom: "8px",
                     }}
                   >
