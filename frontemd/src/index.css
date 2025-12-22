@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global base layout */
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Keep body simple so Tailwind classes on React components control layout */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+  background-color: #060515; /* same as login background */
+  color: #f9fafb;
+}
+
+/* Optional: smooth rendering */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

@@ -1,0 +1,83 @@
+.env
+########################
+# Python / Django
+########################
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+*.sqlite3
+db.sqlite3
+.env
+*.env
+.env.*
+
+# Django stuff:
+media/
+staticfiles/
+static_root/
+static/
+logs/
+*.log
+
+# Virtual envs
+venv/
+env/
+.myvenv/
+myvenv/
+.venv/
+
+########################
+# Node / React (frontemd)
+########################
+# dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json.*
+
+# production build
+dist/
+build/
+
+# Vite
+.vite/
+*.local
+
+# IDE / OS files
+########################
+# VS Code
+.vscode/
+.history/
+
+# PyCharm / JetBrains
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+########################
+# Project-specific
+########################
+# Backend
+backend/backend/.env
+backend/backend/__pycache__/
+backend/**/__pycache__/
+
+# Frontend
+frontemd/node_modules/
+frontemd/dist/
+frontemd/.env
+frontemd/.env.*
+
+# Misc
+*.bak
+*.swp
+*.swo
