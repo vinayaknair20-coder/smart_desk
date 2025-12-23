@@ -1,4 +1,4 @@
-# tickets/views.py - COMPLETE WITH ALL FEATURES + COMMENT VIEWSETS
+# tickets/views.py - COMPLETE WITH ALL FEATURES + AUTO-CLASSIFICATION
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -12,6 +12,7 @@ from .serializers import (
     KnowledgeBaseSerializer,
     CannedResponseSerializer,
 )
+from .ai_classifier import classify_ticket  # NEW: Import auto-classifier
 
 
 class TicketViewSet(viewsets.ModelViewSet):
@@ -31,18 +32,37 @@ class TicketViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """
-        Create ticket, attach SLA based on priority, and create its comment thread.
+        Create ticket with SMART auto-classification.
+        Automatically determines queue and priority based on content.
         """
-        priority_id = int(self.request.data.get("priority_id", 2))
+        subject = self.request.data.get("subject", "")
+        description = self.request.data.get("description", "")
+        
+        # 🤖 SMART AUTO-CLASSIFICATION
+        ai_result = classify_ticket(subject, description)
+        
+        # Use auto-classification results
+        queue = ai_result["queue"]
+        priority_id = ai_result["priority"]
+        
+        # Get SLA based on auto-assigned priority
         sla = SLATime.objects.filter(priority_id=priority_id).first()
 
         ticket = serializer.save(
             created_user=self.request.user,
+            queue=queue,
+            priority_id=priority_id,
             sla_time=sla,
         )
 
         # Ensure each ticket has a thread
         CommentThread.objects.get_or_create(ticket=ticket)
+        
+        # Log classification for monitoring (shows in Django terminal)
+        print(f"✅ Ticket #{ticket.id} auto-classified:")
+        print(f"   Subject: {subject[:50]}...")
+        print(f"   Queue: {queue} | Priority: {priority_id}")
+        print(f"   Reasoning: {ai_result['reasoning']}")
 
 
 class SLATimeViewSet(viewsets.ModelViewSet):
