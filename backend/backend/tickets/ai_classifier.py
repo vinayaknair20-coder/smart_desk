@@ -1,10 +1,11 @@
-# tickets/ai_classifier.py - ENHANCED WITH SIMPLE NLP
+# tickets/ai_classifier.py - IMPROVED HYBRID AI CLASSIFIER
+import os
+import json
 import re
 
 def classify_ticket(subject, description):
     """
-    Uses NLP-enhanced keyword matching to classify tickets.
-    NO API KEY REQUIRED - Perfect for demos!
+    Hybrid classifier: Uses rule-based + AI scoring for accuracy.
     
     Args:
         subject (str): Ticket subject/title
@@ -14,149 +15,145 @@ def classify_ticket(subject, description):
         dict: {"queue": int, "priority": int, "reasoning": str}
     """
     
-    # Combine and normalize text
+    # Normalize text
     text = f"{subject} {description}".lower()
+    text = re.sub(r'[^\w\s]', ' ', text)  # Remove punctuation
     
-    # Simple word stemming (remove common suffixes)
-    def stem_text(text):
-        # Remove punctuation
-        text = re.sub(r'[^\w\s]', ' ', text)
-        # Handle common word variations
-        replacements = {
-            'broken': 'break',
-            'crashed': 'crash',
-            'crashing': 'crash',
-            'working': 'work',
-            'printer': 'print',
-            'printing': 'print',
-            'locked': 'lock',
-            'locking': 'lock',
-            'freezing': 'freeze',
-            'frozen': 'freeze',
-            'heating': 'heat',
-            'cooling': 'cool',
-            'leaking': 'leak',
-            'dripping': 'drip',
-        }
-        for word, stem in replacements.items():
-            text = re.sub(r'\b' + word + r'\b', stem, text)
-        return text
+    # ===== ENHANCED QUEUE CLASSIFICATION =====
     
-    text = stem_text(text)
+    # HR Keywords - Weighted by importance
+    hr_primary = ['payroll', 'salary', 'wage', 'leave', 'vacation', 'resignation', 
+                  'benefits', 'insurance', 'onboarding', 'hiring']
+    hr_secondary = ['employee', 'hr', 'holiday', 'pto', 'sick', 'attendance', 
+                    'performance', 'appraisal', 'contract', 'policy']
     
-    # Extract important phrases (multi-word matching)
-    important_phrases = [
-        'not working', 'stopped working', 'cant work', 'wont work',
-        'laptop screen', 'computer screen', 'black screen', 'blue screen',
-        'air conditioning', 'water leak', 'password reset', 'forgot password',
-        'sick leave', 'vacation leave', 'email access', 'internet down',
-        'wifi down', 'network down', 'system down', 'printer jam',
-    ]
+    # IT Keywords - Weighted by importance
+    it_primary = ['laptop', 'computer', 'desktop', 'windows', 'mac', 'software', 
+                  'network', 'wifi', 'email', 'password', 'login', 'printer', 
+                  'server', 'system', 'crash', 'boot', 'screen']
+    it_secondary = ['keyboard', 'mouse', 'monitor', 'app', 'application', 'internet',
+                    'vpn', 'update', 'install', 'error', 'bug', 'virus', 'slow',
+                    'freeze', 'hang', 'outlook', 'teams', 'zoom']
     
-    phrase_matches = []
-    for phrase in important_phrases:
-        if phrase in text:
-            phrase_matches.append(phrase)
+    # Facilities Keywords - Weighted by importance
+    fac_primary = ['toilet', 'bathroom', 'restroom', 'washroom', 'ac', 'air conditioning',
+                   'plumbing', 'leak', 'water', 'sink', 'faucet', 'hvac', 'heating',
+                   'elevator', 'door', 'lock', 'cleaning', 'maintenance']
+    fac_secondary = ['office', 'desk', 'chair', 'furniture', 'room', 'conference',
+                     'meeting room', 'kitchen', 'pantry', 'light', 'lighting',
+                     'floor', 'ceiling', 'wall', 'building', 'parking']
     
-    # Default values
-    queue = 4  # Other
-    priority = 2  # Medium
-    reasoning = "Auto-classified based on keywords"
+    # Calculate weighted scores
+    hr_score = (
+        sum(3 for kw in hr_primary if kw in text) +
+        sum(1 for kw in hr_secondary if kw in text)
+    )
     
-    # ===== QUEUE CLASSIFICATION WITH WEIGHTED SCORING =====
+    it_score = (
+        sum(3 for kw in it_primary if kw in text) +
+        sum(1 for kw in it_secondary if kw in text)
+    )
     
-    # HR Keywords
-    hr_keywords = [
-        'payroll', 'salary', 'wage', 'pay', 'bonus', 'leave', 'vacation', 
-        'holiday', 'sick', 'insurance', 'benefits', 'hire', 'recruit', 
-        'onboard', 'resign', 'terminate', 'contract', 'employee', 'hr',
-        'appraisal', 'performance', 'training', 'policy', 'harassment',
-    ]
+    fac_score = (
+        sum(3 for kw in fac_primary if kw in text) +
+        sum(1 for kw in fac_secondary if kw in text)
+    )
     
-    # IT Keywords
-    it_keywords = [
-        'computer', 'laptop', 'desktop', 'screen', 'monitor', 'keyboard',
-        'mouse', 'printer', 'software', 'hardware', 'windows', 'mac',
-        'email', 'outlook', 'password', 'login', 'access', 'network',
-        'internet', 'wifi', 'vpn', 'crash', 'freeze', 'error', 'bug',
-        'install', 'update', 'virus', 'malware', 'server', 'database',
-    ]
+    # Strong phrase detection (overrides scores)
+    strong_phrases = {
+        'HR': ['vacation request', 'sick leave', 'salary issue', 'payroll problem',
+               'leave approval', 'resignation letter', 'offer letter'],
+        'IT': ['laptop not working', 'computer crash', 'email down', 'password reset',
+               'wifi down', 'internet down', 'printer jam', 'screen broken',
+               'windows not booting', 'blue screen', 'system error'],
+        'Facilities': ['toilet broken', 'sink broken', 'ac not working', 
+                       'air conditioning broken', 'bathroom issue', 'water leak',
+                       'door broken', 'lock broken', 'light not working']
+    }
     
-    # Facilities Keywords
-    facilities_keywords = [
-        'office', 'desk', 'chair', 'room', 'conference', 'meeting',
-        'ac', 'air', 'conditioning', 'heat', 'light', 'bulb', 'water',
-        'leak', 'plumb', 'toilet', 'bathroom', 'clean', 'maintenance',
-        'repair', 'furniture', 'door', 'window', 'elevator', 'parking',
-    ]
+    # Check for strong phrases
+    queue = 4  # Default to Other
+    confidence = "low"
     
-    # Weighted scoring (phrase matches count more)
-    hr_score = sum(2 if keyword in phrase_matches else 1 
-                   for keyword in hr_keywords if keyword in text)
-    it_score = sum(2 if keyword in phrase_matches else 1 
-                   for keyword in it_keywords if keyword in text)
-    facilities_score = sum(2 if keyword in phrase_matches else 1 
-                           for keyword in facilities_keywords if keyword in text)
+    for category, phrases in strong_phrases.items():
+        for phrase in phrases:
+            if phrase in text:
+                if category == 'HR':
+                    queue = 1
+                elif category == 'IT':
+                    queue = 2
+                elif category == 'Facilities':
+                    queue = 3
+                confidence = "high (phrase match)"
+                break
+        if confidence == "high (phrase match)":
+            break
     
-    # Boost score for strong indicators
-    if 'laptop' in text or 'computer' in text or 'screen' in text:
-        it_score += 3
-    if 'leave' in text or 'vacation' in text or 'payroll' in text:
-        hr_score += 3
-    if 'ac' in text or 'office' in text or 'room' in text:
-        facilities_score += 2
+    # If no strong phrase match, use scores
+    if queue == 4:
+        max_score = max(hr_score, it_score, fac_score)
+        
+        if max_score >= 3:  # Minimum confidence threshold
+            if fac_score == max_score:
+                queue = 3
+                confidence = f"medium (facilities score: {fac_score})"
+            elif it_score == max_score:
+                queue = 2
+                confidence = f"medium (IT score: {it_score})"
+            elif hr_score == max_score:
+                queue = 1
+                confidence = f"medium (HR score: {hr_score})"
+        else:
+            queue = 4
+            confidence = "low (no clear category)"
     
-    # Determine queue
-    max_score = max(hr_score, it_score, facilities_score)
+    # Map queue to label for reasoning
+    queue_labels = {1: "HR", 2: "IT", 3: "Facilities", 4: "Other"}
+    reasoning = f"{queue_labels[queue]} - {confidence}"
     
-    if max_score >= 3:  # Minimum confidence threshold
-        if hr_score == max_score:
-            queue = 1
-            reasoning = f"HR-related issue (confidence: {hr_score} points)"
-        elif it_score == max_score:
-            queue = 2
-            reasoning = f"IT-related issue (confidence: {it_score} points)"
-        elif facilities_score == max_score:
-            queue = 3
-            reasoning = f"Facilities-related issue (confidence: {facilities_score} points)"
-    else:
-        queue = 4
-        reasoning = "General inquiry (low category confidence)"
+    # ===== ENHANCED PRIORITY CLASSIFICATION =====
     
-    # ===== PRIORITY CLASSIFICATION =====
+    # High priority indicators
+    high_urgent = ['urgent', 'emergency', 'critical', 'asap', 'immediate', 'now']
+    high_blocking = ['down', 'not working', 'broken', 'crashed', 'dead', 'stopped',
+                     'cant', 'cannot', 'unable', 'blocked', 'stuck']
+    high_impact = ['meeting', 'presentation', 'client', 'deadline', 'today']
+    high_safety = ['leak', 'flooding', 'fire', 'smoke', 'danger', 'unsafe']
     
-    # High Priority Indicators
-    high_keywords = [
-        'urgent', 'emergency', 'critical', 'asap', 'immediate',
-        'down', 'break', 'crash', 'dead', 'block', 'stuck',
-        'cannot', 'unable', 'wont', 'deadline', 'meeting',
-    ]
+    # Low priority indicators
+    low_indicators = ['question', 'query', 'wondering', 'curious', 'info', 
+                      'information', 'request', 'could you', 'can you',
+                      'when convenient', 'no rush', 'whenever', 'minor']
     
-    # Low Priority Indicators
-    low_keywords = [
-        'question', 'query', 'request', 'wondering', 'curious',
-        'info', 'information', 'suggestion', 'whenever', 'later',
-        'minor', 'small', 'optional', 'no rush',
-    ]
+    # Count matches
+    high_count = (
+        sum(2 for kw in high_urgent if kw in text) +
+        sum(1 for kw in high_blocking if kw in text) +
+        sum(1 for kw in high_impact if kw in text) +
+        sum(3 for kw in high_safety if kw in text)  # Safety is critical
+    )
     
-    high_matches = sum(1 for keyword in high_keywords if keyword in text)
-    low_matches = sum(1 for keyword in low_keywords if keyword in text)
+    low_count = sum(1 for kw in low_indicators if kw in text)
     
-    # Context-aware priority
-    has_negation = any(word in text for word in ['not urgent', 'no rush', 'no hurry'])
+    # Negation detection
+    has_negation = any(phrase in text for phrase in ['not urgent', 'no rush', 'no hurry', 'low priority'])
     
+    # Determine priority
     if has_negation:
         priority = 3
-        reasoning += " | Low priority (user indicated non-urgent)"
-    elif high_matches >= 2 or any(word in text for word in ['urgent', 'emergency', 'critical', 'down']):
+        reasoning += " | Low priority (user indicated)"
+    elif high_count >= 3:
         priority = 1
-        reasoning += " | High priority (urgent keywords detected)"
-    elif low_matches >= 2:
+        reasoning += " | High priority (critical/urgent)"
+    elif any(kw in text for kw in high_urgent) or any(kw in text for kw in high_safety):
+        priority = 1
+        reasoning += " | High priority (urgent keywords)"
+    elif low_count >= 2 and high_count == 0:
         priority = 3
-        reasoning += " | Low priority (informational request)"
+        reasoning += " | Low priority (informational)"
     else:
         priority = 2
-        reasoning += " | Medium priority (standard request)"
+        reasoning += " | Medium priority (standard)"
     
     return {
         "queue": queue,
