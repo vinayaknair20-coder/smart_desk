@@ -266,8 +266,8 @@ const commentStyle = (isAgent) => ({
   padding: "12px 14px",
   marginBottom: "12px",
   borderRadius: "12px",
-  background: isAgent 
-    ? "linear-gradient(135deg, #1e3a8a, #1e40af)" 
+  background: isAgent
+    ? "linear-gradient(135deg, #1e3a8a, #1e40af)"
     : "linear-gradient(135deg, rgba(55,65,81,0.7), rgba(55,65,81,0.5))",
   border: `1px solid ${isAgent ? "#3b82f6" : "#4b5563"}`,
   fontSize: "13px",
@@ -354,12 +354,12 @@ function getPriorityBadge(priority) {
 function calculateSLAStatus(createdAt, priorityId, slaSettings) {
   const sla = slaSettings.find(s => s.priority_id === priorityId);
   if (!sla) return { text: "No SLA", color: "#6b7280" };
-  
+
   const created = new Date(createdAt);
   const now = new Date();
   const elapsedMinutes = (now - created) / 1000 / 60;
   const remaining = sla.sla_time_minutes - elapsedMinutes;
-  
+
   if (remaining < 0) {
     return { text: `BREACH (${Math.abs(Math.round(remaining))}m over)`, color: "#ef4444" };
   } else if (remaining < 30) {
@@ -378,20 +378,25 @@ export default function AgentDashboard({ onLogout }) {
   const [users, setUsers] = useState([]); // NEW: Store all users for name lookup
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  
+
   const [search, setSearch] = useState("");
   const [queueFilter, setQueueFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // Changed default to "all"
   const [priorityFilter, setPriorityFilter] = useState("all");
-  
+
   const [showTicketModal, setShowTicketModal] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
-  
+
   const [ticketStatus, setTicketStatus] = useState("");
   const [ticketPriority, setTicketPriority] = useState("");
   const [replyText, setReplyText] = useState("");
   const [selectedCanned, setSelectedCanned] = useState("");
-  
+
+  // KB SEARCH STATE
+  const [kbSearchQuery, setKbSearchQuery] = useState("");
+  const [kbResults, setKbResults] = useState([]);
+  const [kbSearching, setKbSearching] = useState(false);
+
   const userId = Number(localStorage.getItem("user_id")) || 1;
 
   const showNotification = (message, type = "success") => {
@@ -495,7 +500,7 @@ export default function AgentDashboard({ onLogout }) {
 
     try {
       let threadId = selectedTicket.thread_id;
-      
+
       if (!threadId) {
         const threadRes = await api.post("/api/comment-threads/", {
           ticket: selectedTicket.id,
@@ -539,6 +544,30 @@ export default function AgentDashboard({ onLogout }) {
     }
   };
 
+  const handleKBSearch = async () => {
+    if (!kbSearchQuery.trim()) {
+      setKbResults([]);
+      return;
+    }
+
+    setKbSearching(true);
+    try {
+      const res = await api.get(`/api/knowledge-base/search/?q=${encodeURIComponent(kbSearchQuery)}`);
+      setKbResults(res.data.results || []);
+    } catch (error) {
+      console.error("KB search failed:", error);
+      setKbResults([]);
+    } finally {
+      setKbSearching(false);
+    }
+  };
+
+  const handlePasteKBArticle = (content) => {
+    setReplyText(content);
+    setKbSearchQuery("");
+    setKbResults([]);
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchTickets();
@@ -547,7 +576,7 @@ export default function AgentDashboard({ onLogout }) {
   }, []);
 
   const filteredTickets = myTickets.filter(t => {
-    const matchesSearch = t.subject.toLowerCase().includes(search.toLowerCase()) || t.id.toString().includes(search);
+    const matchesSearch = (t.subject || "").toLowerCase().includes(search.toLowerCase()) || t.id.toString().includes(search);
     const matchesQueue = queueFilter === "all" || t.queue === Number(queueFilter);
     const matchesStatus = statusFilter === "all" || t.status === Number(statusFilter);
     const matchesPriority = priorityFilter === "all" || t.priority_id === Number(priorityFilter);
@@ -564,8 +593,8 @@ export default function AgentDashboard({ onLogout }) {
       {notification && (
         <div style={{
           ...notificationStyle,
-          background: notification.type === "success" 
-            ? "linear-gradient(135deg, #22c55e, #16a34a)" 
+          background: notification.type === "success"
+            ? "linear-gradient(135deg, #22c55e, #16a34a)"
             : "linear-gradient(135deg, #ef4444, #dc2626)",
         }}>
           {notification.message}
@@ -660,7 +689,7 @@ export default function AgentDashboard({ onLogout }) {
                   const statusBadge = getStatusBadge(t.status);
                   const priorityBadge = getPriorityBadge(t.priority_id);
                   const slaStatus = calculateSLAStatus(t.creation_time, t.priority_id, slaSettings);
-                  
+
                   return (
                     <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>#{t.id}</td>
@@ -680,8 +709,8 @@ export default function AgentDashboard({ onLogout }) {
                           View
                         </button>
                         {t.status === 1 && (
-                          <button 
-                            style={{ ...successBtnStyle, padding: "4px 10px", fontSize: "11px", marginLeft: "4px" }} 
+                          <button
+                            style={{ ...successBtnStyle, padding: "4px 10px", fontSize: "11px", marginLeft: "4px" }}
                             onClick={() => handleResolveTicket(t.id)}
                           >
                             Resolve
@@ -707,7 +736,7 @@ export default function AgentDashboard({ onLogout }) {
             </div>
 
             <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "8px" }}>
-              <strong>Queue:</strong> {QUEUE_MAP[selectedTicket.queue]} | 
+              <strong>Queue:</strong> {QUEUE_MAP[selectedTicket.queue]} |
               <strong style={{ marginLeft: "8px" }}>Created:</strong> {new Date(selectedTicket.creation_time).toLocaleString()}
             </div>
 
@@ -728,7 +757,7 @@ export default function AgentDashboard({ onLogout }) {
                   const userInfo = getUserInfo(c.user);
                   const isCurrentAgent = c.user === userId;
                   const isAgent = userInfo.role === 3;
-                  
+
                   return (
                     <div key={idx} style={commentStyle(isAgent)}>
                       <div style={commentHeaderStyle}>
@@ -758,15 +787,76 @@ export default function AgentDashboard({ onLogout }) {
               ))}
             </select>
 
+            {/* KB SEARCH SECTION */}
+            <div style={{ marginTop: "14px", padding: "12px", background: "rgba(15,23,42,0.6)", borderRadius: "10px", border: "1px solid #374151" }}>
+              <label style={{ ...fieldLabelStyle, display: "flex", alignItems: "center", gap: "6px" }}>
+                🔍 Search Knowledge Base
+                <span style={{ fontSize: "10px", color: "#6b7280", fontWeight: 400 }}>(AI-powered)</span>
+              </label>
+              <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
+                <input
+                  style={{ ...fieldInputStyle, flex: 1 }}
+                  placeholder="e.g., 'how to reset password'"
+                  value={kbSearchQuery}
+                  onChange={(e) => setKbSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleKBSearch()}
+                />
+                <button
+                  type="button"
+                  style={{ ...primaryBtnStyle, padding: "7px 14px", fontSize: "11px" }}
+                  onClick={handleKBSearch}
+                  disabled={kbSearching}
+                >
+                  {kbSearching ? "..." : "Search"}
+                </button>
+              </div>
+
+              {kbResults.length > 0 && (
+                <div style={{ marginTop: "10px", maxHeight: "200px", overflowY: "auto" }}>
+                  {kbResults.map((article, idx) => (
+                    <div
+                      key={article.id}
+                      style={{
+                        background: "linear-gradient(135deg, rgba(30,58,138,0.4), rgba(30,64,175,0.3))",
+                        border: "1px solid #3b82f6",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        marginBottom: "8px",
+                        cursor: "pointer"
+                      }}
+                      onClick={() => handlePasteKBArticle(article.content)}
+                    >
+                      <div style={{ fontSize: "12px", fontWeight: 600, color: "#93c5fd", marginBottom: "4px" }}>
+                        {idx + 1}. {article.title}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#d1d5db", lineHeight: "1.4", marginBottom: "6px" }}>
+                        {article.content.substring(0, 100)}...
+                      </div>
+                      <button
+                        type="button"
+                        style={{ ...successBtnStyle, padding: "4px 10px", fontSize: "10px" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePasteKBArticle(article.content);
+                        }}
+                      >
+                        ✓ Paste to Reply
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <label style={fieldLabelStyle}>Your Reply</label>
-            <textarea 
-              style={textAreaStyle} 
-              value={replyText} 
-              onChange={(e) => setReplyText(e.target.value)} 
+            <textarea
+              style={textAreaStyle}
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
               placeholder="Type your response..."
             />
-            <button 
-              style={{ ...primaryBtnStyle, marginTop: "8px", width: "100%" }} 
+            <button
+              style={{ ...primaryBtnStyle, marginTop: "8px", width: "100%" }}
               onClick={handleAddComment}
               disabled={!replyText.trim()}
             >

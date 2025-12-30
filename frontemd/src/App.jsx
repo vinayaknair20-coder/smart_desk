@@ -1,6 +1,7 @@
-// src/App.jsx - FIXED ROUTING
+// src/App.jsx - WITH LANDING PAGE
 import { useState, useEffect } from "react";
 import api from "./api/client";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import UserDashboard from "./pages/UserDashboard";
 import AgentDashboard from "./pages/AgentDashboard";
@@ -10,6 +11,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [checking, setChecking] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [currentPage, setCurrentPage] = useState("landing"); // "landing", "login", "register"
 
   useEffect(() => {
     const token = localStorage.getItem("access");
@@ -53,14 +55,19 @@ function App() {
     localStorage.removeItem("user_id");
     setIsLoggedIn(false);
     setUserRole(null);
+    setCurrentPage("landing");
+  };
+
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
   };
 
   if (checking) {
     return (
-      <div style={{ 
-        minHeight: "100vh", 
-        display: "flex", 
-        alignItems: "center", 
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
         background: "#020617",
         color: "#e5e7eb",
@@ -72,7 +79,10 @@ function App() {
   }
 
   if (!isLoggedIn) {
-    return <Login onLoggedIn={handleLoggedIn} />;
+    if (currentPage === "landing") {
+      return <LandingPage onNavigate={handleNavigate} />;
+    }
+    return <Login onLoggedIn={handleLoggedIn} onBack={() => setCurrentPage("landing")} />;
   }
 
   // DEBUG: Show which component is being rendered
@@ -83,7 +93,7 @@ function App() {
     console.log("👑 Loading AdminDashboard");
     return <AdminDashboard onLogout={handleLogout} />;
   }
-  
+
   if (userRole === "3") {
     console.log("🛠️ Loading AgentDashboard");
     return <AgentDashboard onLogout={handleLogout} />;

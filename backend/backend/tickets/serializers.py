@@ -1,6 +1,6 @@
 # tickets/serializers.py - COMPLETE WITH ALL FEATURES + ASSIGNMENT FIX
 from rest_framework import serializers
-from .models import Ticket, Comment, CommentThread, SLATime, KnowledgeBase, CannedResponse
+from .models import Ticket, Comment, CommentThread, SLATime
 
 
 class SLATimeSerializer(serializers.ModelSerializer):
@@ -12,24 +12,24 @@ class SLATimeSerializer(serializers.ModelSerializer):
         fields = ['id', 'priority_id', 'priority_display', 'sla_time_minutes']
 
 
-class KnowledgeBaseSerializer(serializers.ModelSerializer):
-    """Serializer for knowledge base articles"""
-    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
-    
-    class Meta:
-        model = KnowledgeBase
-        fields = ['id', 'title', 'content', 'tags', 'created_at', 'updated_at', 'created_by', 'created_by_username', 'version', 'is_active']
-        read_only_fields = ['created_at', 'updated_at', 'version', 'created_by_username']
-
-
-class CannedResponseSerializer(serializers.ModelSerializer):
-    """Serializer for canned responses"""
-    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
-    
-    class Meta:
-        model = CannedResponse
-        fields = ['id', 'title', 'response_text', 'search_tags', 'created_at', 'updated_at', 'created_by', 'created_by_username']
-        read_only_fields = ['created_at', 'updated_at', 'created_by_username']
+# class KnowledgeBaseSerializer(serializers.ModelSerializer):
+#     """Serializer for knowledge base articles"""
+#     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+#     
+#     class Meta:
+#         model = KnowledgeBase
+#         fields = ['id', 'title', 'content', 'tags', 'created_at', 'updated_at', 'created_by', 'created_by_username', 'version', 'is_active']
+#         read_only_fields = ['created_at', 'updated_at', 'version', 'created_by_username']
+# 
+# 
+# # class CannedResponseSerializer(serializers.ModelSerializer):
+# #     """Serializer for canned responses"""
+# #     created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+# #     
+# #     class Meta:
+# #         model = CannedResponse
+# #         fields = ['id', 'title', 'response_text', 'search_tags', 'created_at', 'updated_at', 'created_by', 'created_by_username']
+# #         read_only_fields = ['created_at', 'updated_at', 'created_by_username']
 
 
 class TicketSerializer(serializers.ModelSerializer):

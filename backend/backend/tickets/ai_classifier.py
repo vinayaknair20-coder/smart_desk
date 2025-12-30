@@ -1,18 +1,13 @@
-# tickets/ai_classifier.py - IMPROVED HYBRID AI CLASSIFIER
+# tickets/ai_classifier.py - UPGRADED TO GEMINI AI WITH FALLBACK
 import os
 import json
 import re
+import google.generativeai as genai
+from django.conf import settings
 
-def classify_ticket(subject, description):
+def classify_ticket_rule_based(subject, description):
     """
-    Hybrid classifier: Uses rule-based + AI scoring for accuracy.
-    
-    Args:
-        subject (str): Ticket subject/title
-        description (str): Ticket description
-    
-    Returns:
-        dict: {"queue": int, "priority": int, "reasoning": str}
+    Fallback rule-based classifier.
     """
     
     # Normalize text
@@ -158,5 +153,79 @@ def classify_ticket(subject, description):
     return {
         "queue": queue,
         "priority": priority,
-        "reasoning": reasoning
+        "reasoning": reasoning + " (Rules Fallback)"
     }
+
+def classify_ticket(subject, description):
+    """
+    Main classifier entry point. 
+    Tries Google Gemini first, falls back to rule-based system if it fails.
+    """
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("⚠️ No GEMINI_API_KEY found. Using rule-based classifier.")
+        return classify_ticket_rule_based(subject, description)
+
+    try:
+        genai.configure(api_key=api_key)
+        
+        # Dynamically find a usable model
+        model_name = 'gemini-pro' # fallback
+        try:
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods and 'gemini' in m.name:
+                    model_name = m.name
+                    break
+        except:
+            pass
+            
+        print(f"DEBUG: Using Gemini Model: {model_name}")
+        model = genai.GenerativeModel(model_name)
+        
+        prompt = f"""
+        You are an intelligent service desk assistant. Classify the following ticket into a Queue and a Priority.
+        
+        Queues:
+        1 = HR (Payroll, benefits, hiring, leave, policy)
+        2 = IT (Hardware, software, network, access, bugs)
+        3 = Facilities (Plumbing, AC, cleaning, furniture, building)
+        4 = Other (If it doesn't fit clearly)
+
+        Priorities:
+        1 = High (Urgent, blocking work, safety hazard, strict deadline)
+        2 = Medium (Standard request, broken but not blocking entire work)
+        3 = Low (Question, info request, minor cosmetic issue, "no rush")
+
+        Ticket Subject: {subject}
+        Ticket Description: {description}
+
+        Respond STRICTLY in JSON format:
+        {{
+            "queue": <int>,
+            "priority": <int>,
+            "reasoning": "<short explanation>"
+        }}
+        """
+
+        response = model.generate_content(prompt)
+        content = response.text
+        
+        # Clean up code blocks if Gemini adds them
+        if "```json" in content:
+            content = content.replace("```json", "").replace("```", "")
+        if "```" in content:
+            content = content.replace("```", "")
+            
+        data = json.loads(content)
+        
+        # Validate keys
+        if "queue" not in data or "priority" not in data:
+            raise ValueError("Invalid JSON structure")
+            
+        print(f"🤖 Gemini Classification: Queue {data['queue']}, Priority {data['priority']}")
+        return data
+
+    except Exception as e:
+        print(f"❌ Gemini Error: {e}")
+        # print("Using rule-based fallback.")
+        return classify_ticket_rule_based(subject, description)

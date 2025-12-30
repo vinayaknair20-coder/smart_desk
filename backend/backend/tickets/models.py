@@ -24,40 +24,40 @@ class SLATime(models.Model):
         return f"{self.get_priority_id_display()} - {self.sla_time_minutes} mins"
 
 
-class KnowledgeBase(models.Model):
-    """Self-service knowledge base articles"""
-    title = models.CharField(max_length=255)
-    content = models.TextField()
-    tags = models.CharField(max_length=255, blank=True, help_text="Comma-separated tags")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    version = models.IntegerField(default=1)
-    is_active = models.BooleanField(default=True)
-    
-    class Meta:
-        db_table = 'knowledge_base'
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return self.title
+# class KnowledgeBase(models.Model):
+#     """Self-service knowledge base articles"""
+#     title = models.CharField(max_length=255)
+#     content = models.TextField()
+#     tags = models.CharField(max_length=255, blank=True, help_text="Comma-separated tags")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+#     version = models.IntegerField(default=1)
+#     is_active = models.BooleanField(default=True)
+#     
+#     class Meta:
+#         db_table = 'knowledge_base'
+#         ordering = ['-created_at']
+#     
+#     def __str__(self):
+#         return self.title
 
 
-class CannedResponse(models.Model):
-    """Pre-written response templates for agents"""
-    title = models.CharField(max_length=255)
-    response_text = models.TextField()
-    search_tags = models.CharField(max_length=255, blank=True, help_text="Comma-separated search tags")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='canned_responses')
-    
-    class Meta:
-        db_table = 'canned_responses'
-        ordering = ['title']
-    
-    def __str__(self):
-        return self.title
+# class CannedResponse(models.Model):
+#     """Pre-written response templates for agents"""
+#     title = models.CharField(max_length=255)
+#     response_text = models.TextField()
+#     search_tags = models.CharField(max_length=255, blank=True, help_text="Comma-separated search tags")
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+#     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='canned_responses')
+#     
+#     class Meta:
+#         db_table = 'canned_responses'
+#         ordering = ['title']
+#     
+#     def __str__(self):
+#         return self.title
 
 
 class CommentThread(models.Model):

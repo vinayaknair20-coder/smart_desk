@@ -338,6 +338,15 @@ export default function UserDashboard({ onLogout }) {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
+  // TAB STATE
+  const [activeTab, setActiveTab] = useState("tickets"); // "tickets" or "knowledge"
+
+  // KB SEARCH STATE
+  const [kbSearchQuery, setKbSearchQuery] = useState("");
+  const [kbResults, setKbResults] = useState([]);
+  const [kbSearching, setKbSearching] = useState(false);
+  const [kbSearchMode, setKbSearchMode] = useState("");
+
   // DETAIL MODAL STATE
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [showDetail, setShowDetail] = useState(false);
@@ -470,6 +479,28 @@ export default function UserDashboard({ onLogout }) {
     setCreateError("");
   };
 
+  // ===== KB Search =====
+  const handleKBSearch = async () => {
+    if (!kbSearchQuery.trim()) {
+      setKbResults([]);
+      setKbSearchMode("");
+      return;
+    }
+
+    setKbSearching(true);
+    try {
+      const res = await api.get(`/api/knowledge-base/search/?q=${encodeURIComponent(kbSearchQuery)}`);
+      setKbResults(res.data.results || []);
+      setKbSearchMode(res.data.mode || "");
+    } catch (error) {
+      console.error("KB search failed:", error);
+      setKbResults([]);
+      setKbSearchMode("error");
+    } finally {
+      setKbSearching(false);
+    }
+  };
+
   const handleCreateTicket = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newDesc.trim()) {
@@ -501,144 +532,270 @@ export default function UserDashboard({ onLogout }) {
       {/* top bar */}
       <div style={topBarStyle}>
         <div style={titleBlockStyle}>
-          <h1 style={h1Style}>Tickets</h1>
+          <h1 style={h1Style}>{activeTab === "tickets" ? "My Tickets" : "Knowledge Base"}</h1>
           <span style={subtitleStyle}>
-            View, filter, and update your tickets.
+            {activeTab === "tickets" ? "View, filter, and update your tickets." : "Search for help articles and solutions."}
           </span>
         </div>
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <button style={outlineBtnStyle} onClick={onLogout}>
             Logout
           </button>
-          <button
-            style={primaryBtnStyle}
-            onClick={() => {
-              resetNewTicketForm();
-              setShowNewModal(true);
-            }}
-          >
-            + New ticket
-          </button>
+          {activeTab === "tickets" && (
+            <button
+              style={primaryBtnStyle}
+              onClick={() => {
+                resetNewTicketForm();
+                setShowNewModal(true);
+              }}
+            >
+              + New ticket
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "16px", borderBottom: "1px solid #1e293b", paddingBottom: "0" }}>
+        <button
+          onClick={() => setActiveTab("tickets")}
+          style={{
+            background: activeTab === "tickets" ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "transparent",
+            color: activeTab === "tickets" ? "#fff" : "#9ca3af",
+            border: "none",
+            borderBottom: activeTab === "tickets" ? "3px solid #3b82f6" : "3px solid transparent",
+            padding: "10px 20px",
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
+            borderRadius: "8px 8px 0 0",
+            transition: "all 0.2s"
+          }}
+        >
+          🎫 My Tickets
+        </button>
+        <button
+          onClick={() => setActiveTab("knowledge")}
+          style={{
+            background: activeTab === "knowledge" ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "transparent",
+            color: activeTab === "knowledge" ? "#fff" : "#9ca3af",
+            border: "none",
+            borderBottom: activeTab === "knowledge" ? "3px solid #3b82f6" : "3px solid transparent",
+            padding: "10px 20px",
+            fontSize: "14px",
+            fontWeight: 600,
+            cursor: "pointer",
+            borderRadius: "8px 8px 0 0",
+            transition: "all 0.2s"
+          }}
+        >
+          📚 Knowledge Base
+        </button>
       </div>
 
       {/* stats */}
-      <div style={statsRowStyle}>
-        <div style={statCardStyle}>
-          <div style={statLabelStyle}>Total</div>
-          <div style={statValueStyle}>{total}</div>
+      {activeTab === "tickets" && (
+        <div style={statsRowStyle}>
+          <div style={statCardStyle}>
+            <div style={statLabelStyle}>Total</div>
+            <div style={statValueStyle}>{total}</div>
+          </div>
+          <div style={statCardStyle}>
+            <div style={statLabelStyle}>Open</div>
+            <div style={statValueStyle}>{openCount}</div>
+            <div style={statSubStyle}>Need attention</div>
+          </div>
+          <div style={statCardStyle}>
+            <div style={statLabelStyle}>In Progress</div>
+            <div style={statValueStyle}>{progressCount}</div>
+          </div>
+          <div style={statCardStyle}>
+            <div style={statLabelStyle}>Resolved</div>
+            <div style={statValueStyle}>{resolvedCount}</div>
+          </div>
         </div>
-        <div style={statCardStyle}>
-          <div style={statLabelStyle}>Open</div>
-          <div style={statValueStyle}>{openCount}</div>
-          <div style={statSubStyle}>Need attention</div>
-        </div>
-        <div style={statCardStyle}>
-          <div style={statLabelStyle}>In Progress</div>
-          <div style={statValueStyle}>{progressCount}</div>
-        </div>
-        <div style={statCardStyle}>
-          <div style={statLabelStyle}>Resolved</div>
-          <div style={statValueStyle}>{resolvedCount}</div>
-        </div>
-      </div>
+      )}
 
       {/* tickets panel */}
-      <div style={panelStyle}>
-        <div style={filterRowStyle}>
-          <input
-            style={searchInputStyle}
-            placeholder="Search by ID or subject..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select
-            style={selectStyle}
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">All statuses</option>
-            <option value="open">Open</option>
-            <option value="in progress">In progress</option>
-            <option value="resolved">Resolved</option>
-          </select>
-        </div>
+      {activeTab === "tickets" && (
+        <div style={panelStyle}>
+          <div style={filterRowStyle}>
+            <input
+              style={searchInputStyle}
+              placeholder="Search by ID or subject..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select
+              style={selectStyle}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="all">All statuses</option>
+              <option value="open">Open</option>
+              <option value="in progress">In progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
 
-        <div style={tableWrapperStyle}>
-          <table style={tableStyle}>
-            <thead>
-              <tr>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Subject</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Priority</th>
-                <th style={thStyle}>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTickets.length === 0 ? (
+          <div style={tableWrapperStyle}>
+            <table style={tableStyle}>
+              <thead>
                 <tr>
-                  <td
-                    style={{
-                      ...tdBase,
-                      padding: "14px 10px",
-                      color: "#6b7280",
-                    }}
-                    colSpan={5}
-                  >
-                    No tickets match the current filters.
-                  </td>
+                  <th style={thStyle}>ID</th>
+                  <th style={thStyle}>Subject</th>
+                  <th style={thStyle}>Status</th>
+                  <th style={thStyle}>Priority</th>
+                  <th style={thStyle}>Created</th>
                 </tr>
-              ) : (
-                filteredTickets.map((t, index) => (
-                  <tr
-                    key={t.id}
-                    style={{
-                      backgroundColor:
-                        index % 2 === 0
-                          ? "rgba(15,23,42,0.9)"
-                          : "rgba(15,23,42,0.96)",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleTicketClick(t.id)}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#020617";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor =
-                        index % 2 === 0
-                          ? "rgba(15,23,42,0.9)"
-                          : "rgba(15,23,42,0.96)";
-                    }}
-                  >
-                    <td style={tdBase}>#{t.id}</td>
-                    <td style={tdBase}>{t.subject}</td>
-                    <td style={tdBase}>
-                      <span style={getStatusStyle(t.status_label)}>
-                        {t.status_label || "—"}
-                      </span>
-                    </td>
-                    <td style={tdBase}>
-                      <span style={getPriorityStyle(t.priority_label)}>
-                        {t.priority_label || "—"}
-                      </span>
-                    </td>
-                    <td style={tdBase}>
-                      {t.creation_time
-                        ? new Date(t.creation_time).toLocaleString()
-                        : "—"}
+              </thead>
+              <tbody>
+                {filteredTickets.length === 0 ? (
+                  <tr>
+                    <td
+                      style={{
+                        ...tdBase,
+                        padding: "14px 10px",
+                        color: "#6b7280",
+                      }}
+                      colSpan={5}
+                    >
+                      No tickets match the current filters.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  filteredTickets.map((t, index) => (
+                    <tr
+                      key={t.id}
+                      style={{
+                        backgroundColor:
+                          index % 2 === 0
+                            ? "rgba(15,23,42,0.9)"
+                            : "rgba(15,23,42,0.96)",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => handleTicketClick(t.id)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#020617";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          index % 2 === 0
+                            ? "rgba(15,23,42,0.9)"
+                            : "rgba(15,23,42,0.96)";
+                      }}
+                    >
+                      <td style={tdBase}>#{t.id}</td>
+                      <td style={tdBase}>{t.subject}</td>
+                      <td style={tdBase}>
+                        <span style={getStatusStyle(t.status_label)}>
+                          {t.status_label || "—"}
+                        </span>
+                      </td>
+                      <td style={tdBase}>
+                        <span style={getPriorityStyle(t.priority_label)}>
+                          {t.priority_label || "—"}
+                        </span>
+                      </td>
+                      <td style={tdBase}>
+                        {t.creation_time
+                          ? new Date(t.creation_time).toLocaleString()
+                          : "—"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <div style={footerTextStyle}>
-          Showing {filteredTickets.length} of {total} tickets.
+          <div style={footerTextStyle}>
+            Showing {filteredTickets.length} of {total} tickets.
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Knowledge Base Panel */}
+      {activeTab === "knowledge" && (
+        <div style={panelStyle}>
+          <div style={{ marginBottom: "16px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <input
+                style={{ ...searchInputStyle, flex: 1 }}
+                placeholder="Search knowledge base... (e.g., 'how to fix printer')"
+                value={kbSearchQuery}
+                onChange={(e) => setKbSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleKBSearch()}
+              />
+              <button
+                style={{ ...primaryBtnStyle, padding: "8px 20px" }}
+                onClick={handleKBSearch}
+                disabled={kbSearching}
+              >
+                {kbSearching ? "Searching..." : "🔍 Search"}
+              </button>
+            </div>
+            {kbSearchMode && (
+              <div style={{ marginTop: "8px", fontSize: "11px", color: "#9ca3af" }}>
+                {kbSearchMode === "semantic" && "🤖 AI Semantic Search"}
+                {kbSearchMode === "keyword_fallback" && "📝 Keyword Search (AI unavailable)"}
+                {kbSearchMode === "error" && "❌ Search failed"}
+              </div>
+            )}
+          </div>
+
+          {kbResults.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {kbResults.map((article, idx) => (
+                <div
+                  key={article.id}
+                  style={{
+                    background: "linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85))",
+                    border: "1px solid #1e293b",
+                    borderRadius: "12px",
+                    padding: "16px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.3)"
+                  }}
+                >
+                  <div style={{ fontSize: "15px", fontWeight: 600, color: "#f9fafb", marginBottom: "8px" }}>
+                    {idx + 1}. {article.title}
+                  </div>
+                  <div style={{ fontSize: "13px", color: "#d1d5db", lineHeight: "1.6", marginBottom: "8px" }}>
+                    {article.content}
+                  </div>
+                  {article.tags && (
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                      {article.tags.split(",").map((tag, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            background: "#1e3a8a",
+                            color: "#93c5fd",
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            fontSize: "10px",
+                            fontWeight: 500
+                          }}
+                        >
+                          {tag.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : kbSearchQuery && !kbSearching ? (
+            <div style={{ textAlign: "center", padding: "40px", color: "#6b7280" }}>
+              No articles found. Try different keywords or contact support.
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "40px", color: "#6b7280" }}>
+              Enter a search query to find help articles.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* New Ticket Modal */}
       {showNewModal && (
@@ -773,9 +930,8 @@ export default function UserDashboard({ onLogout }) {
                 <div style={modalSubStyle}>
                   {loadingDetail
                     ? "Loading details..."
-                    : `${comments.length} comment${
-                        comments.length !== 1 ? "s" : ""
-                      }`}
+                    : `${comments.length} comment${comments.length !== 1 ? "s" : ""
+                    }`}
                 </div>
               </div>
               <button style={outlineBtnStyle} onClick={closeDetail}>
@@ -874,27 +1030,27 @@ export default function UserDashboard({ onLogout }) {
                       (ticketDetail.status_label || "")
                         .toLowerCase()
                         .includes("open")) && (
-                      <button
-                        type="button"
-                        style={outlineBtnStyle}
-                        onClick={() => updateTicketStatus(ticketDetail.id, 2)}
-                      >
-                        Mark Resolved
-                      </button>
-                    )}
+                        <button
+                          type="button"
+                          style={outlineBtnStyle}
+                          onClick={() => updateTicketStatus(ticketDetail.id, 2)}
+                        >
+                          Mark Resolved
+                        </button>
+                      )}
 
                     {(ticketDetail.status === 2 ||
                       (ticketDetail.status_label || "")
                         .toLowerCase()
                         .includes("closed")) && (
-                      <button
-                        type="button"
-                        style={outlineBtnStyle}
-                        onClick={() => updateTicketStatus(ticketDetail.id, 1)}
-                      >
-                        Reopen
-                      </button>
-                    )}
+                        <button
+                          type="button"
+                          style={outlineBtnStyle}
+                          onClick={() => updateTicketStatus(ticketDetail.id, 1)}
+                        >
+                          Reopen
+                        </button>
+                      )}
                   </div>
 
                   <div
@@ -908,8 +1064,8 @@ export default function UserDashboard({ onLogout }) {
                     Created:{" "}
                     {ticketDetail.creation_time
                       ? new Date(
-                          ticketDetail.creation_time
-                        ).toLocaleString()
+                        ticketDetail.creation_time
+                      ).toLocaleString()
                       : "—"}
                   </div>
                   <div style={{ lineHeight: "1.5" }}>
@@ -970,8 +1126,8 @@ export default function UserDashboard({ onLogout }) {
                           >
                             {comment.comment_time
                               ? new Date(
-                                  comment.comment_time
-                                ).toLocaleString()
+                                comment.comment_time
+                              ).toLocaleString()
                               : ""}
                           </span>
                         </div>

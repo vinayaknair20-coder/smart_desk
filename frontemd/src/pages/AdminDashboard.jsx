@@ -1,6 +1,26 @@
-// src/pages/AdminDashboard.jsx - COMPLETE WITH ALL FEATURES
 import { useEffect, useState } from "react";
 import api from "../api/client";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+} from 'chart.js';
+import { Doughnut, Pie, Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title
+);
 
 const pageStyle = {
   minHeight: "100vh",
@@ -351,8 +371,16 @@ export default function AdminDashboard({ onLogout }) {
   const [knowledgeBase, setKnowledgeBase] = useState([]);
   const [cannedResponses, setCannedResponses] = useState([]);
   const [slaSettings, setSlaSettings] = useState([]);
+  const [analytics, setAnalytics] = useState({
+    sla_compliance: 0,
+    fcr_rate: 0,
+    agent_workload: [],
+    total_tickets: 0,
+    open_tickets: 0,
+    closed_tickets: 0
+  });
   const [loading, setLoading] = useState(false);
-  
+
   // Modals
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
@@ -365,7 +393,7 @@ export default function AdminDashboard({ onLogout }) {
   const [selectedCanned, setSelectedCanned] = useState(null);
   const [selectedSLA, setSelectedSLA] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  
+
   const [creating, setCreating] = useState(false);
   const [userSearch, setUserSearch] = useState("");
   const [ticketSearch, setTicketSearch] = useState("");
@@ -464,6 +492,15 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const res = await api.get("/api/tickets/analytics/");
+      setAnalytics(res.data);
+    } catch (err) {
+      console.error("Failed to fetch analytics:", err);
+    }
+  };
+
   const updateUserRole = async (userId, newRole) => {
     try {
       await api.patch(`/api/users/${userId}/`, { role: newRole });
@@ -482,7 +519,7 @@ export default function AdminDashboard({ onLogout }) {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    
+
     try {
       if (deleteTarget.type === "user") {
         await api.delete(`/api/users/${deleteTarget.id}/`);
@@ -564,7 +601,7 @@ export default function AdminDashboard({ onLogout }) {
         priority_id: Number(ticketPriority),
         assigned_to: ticketAssignedTo ? Number(ticketAssignedTo) : null,
       });
-      
+
       setShowTicketModal(false);
       showNotification("Ticket updated successfully");
       fetchTickets();
@@ -580,9 +617,9 @@ export default function AdminDashboard({ onLogout }) {
       showNotification("No open tickets to resolve", "error");
       return;
     }
-    
+
     if (!window.confirm(`Resolve all ${openTickets.length} open tickets?`)) return;
-    
+
     try {
       await Promise.all(
         openTickets.map(t => api.patch(`/api/tickets/${t.id}/`, { status: 2 }))
@@ -746,10 +783,10 @@ export default function AdminDashboard({ onLogout }) {
 
   const exportData = (type) => {
     const data = type === "users" ? users : tickets;
-    const csv = type === "users" 
+    const csv = type === "users"
       ? "ID,Username,Email,Role\n" + users.map(u => `${u.id},${u.username},${u.email},${ROLE_OPTIONS.find(r => r.id === u.role)?.label}`).join("\n")
       : "ID,Subject,Queue,Priority,Status\n" + tickets.map(t => `${t.id},${t.subject},${QUEUE_MAP[t.queue]},${PRIORITY_MAP[t.priority_id]},${STATUS_MAP[t.status]}`).join("\n");
-    
+
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -765,6 +802,7 @@ export default function AdminDashboard({ onLogout }) {
     fetchKnowledgeBase();
     fetchCannedResponses();
     fetchSLASettings();
+    fetchAnalytics();
   }, []);
 
   const totalUsers = users.length;
@@ -777,7 +815,7 @@ export default function AdminDashboard({ onLogout }) {
   const itTickets = tickets.filter(t => t.queue === 2).length;
   const facilitiesTickets = tickets.filter(t => t.queue === 3).length;
 
-  const filteredUsers = users.filter(u => 
+  const filteredUsers = users.filter(u =>
     u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
     (u.email || "").toLowerCase().includes(userSearch.toLowerCase())
   );
@@ -789,14 +827,14 @@ export default function AdminDashboard({ onLogout }) {
     return matchesSearch && matchesStatus && matchesQueue;
   });
 
-  const filteredKB = knowledgeBase.filter(kb => 
-    kb.title.toLowerCase().includes(kbSearch.toLowerCase()) ||
-    kb.tags.toLowerCase().includes(kbSearch.toLowerCase())
+  const filteredKB = knowledgeBase.filter(kb =>
+    (kb.title || "").toLowerCase().includes(kbSearch.toLowerCase()) ||
+    (kb.tags || "").toLowerCase().includes(kbSearch.toLowerCase())
   );
 
-  const filteredCanned = cannedResponses.filter(c => 
-    c.title.toLowerCase().includes(cannedSearch.toLowerCase()) ||
-    c.search_tags.toLowerCase().includes(cannedSearch.toLowerCase())
+  const filteredCanned = cannedResponses.filter(c =>
+    (c.title || "").toLowerCase().includes(cannedSearch.toLowerCase()) ||
+    (c.search_tags || "").toLowerCase().includes(cannedSearch.toLowerCase())
   );
 
   return (
@@ -804,8 +842,8 @@ export default function AdminDashboard({ onLogout }) {
       {notification && (
         <div style={{
           ...notificationStyle,
-          background: notification.type === "success" 
-            ? "linear-gradient(135deg, #22c55e, #16a34a)" 
+          background: notification.type === "success"
+            ? "linear-gradient(135deg, #22c55e, #16a34a)"
             : "linear-gradient(135deg, #ef4444, #dc2626)",
         }}>
           {notification.message}
@@ -855,25 +893,81 @@ export default function AdminDashboard({ onLogout }) {
       {/* OVERVIEW TAB */}
       {activeTab === "overview" && (
         <div style={panelStyle}>
-          <div style={sectionTitleStyle}>System Overview</div>
-          
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px", marginTop: "16px" }}>
-            <div style={{ ...statCardStyle, flex: "1" }}>
-              <div style={statLabelStyle}>Active Users</div>
-              <div style={statValueStyle}>{users.filter(u => u.role === 2).length}</div>
-              <div style={statSubStyle}>Regular users</div>
-            </div>
-            
-            <div style={{ ...statCardStyle, flex: "1" }}>
-              <div style={statLabelStyle}>Support Team</div>
-              <div style={statValueStyle}>{agentCount}</div>
-              <div style={statSubStyle}>Active agents</div>
+          <div style={sectionTitleStyle}>System Health & Performance</div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginTop: "16px" }}>
+            {/* SLA Compliance Doughnut */}
+            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={statLabelStyle}>SLA Compliance</div>
+              <div style={{ width: '100%', height: '180px', margin: '15px 0', position: 'relative' }}>
+                <Doughnut
+                  data={{
+                    labels: ['Met SLA', 'Missed'],
+                    datasets: [{
+                      data: [analytics.sla_compliance, Math.max(0, 100 - analytics.sla_compliance)],
+                      backgroundColor: ['#10b981', '#ef4444'],
+                      borderColor: 'transparent',
+                      hoverOffset: 4
+                    }]
+                  }}
+                  options={{
+                    cutout: '75%',
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                  }}
+                />
+                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                  <div style={{ ...statValueStyle, marginTop: 0 }}>{analytics.sla_compliance}%</div>
+                </div>
+              </div>
             </div>
 
-            <div style={{ ...statCardStyle, flex: "1" }}>
-              <div style={statLabelStyle}>Resolution Rate</div>
-              <div style={statValueStyle}>{totalTickets > 0 ? Math.round((closedTickets / totalTickets) * 100) : 0}%</div>
-              <div style={statSubStyle}>{closedTickets} of {totalTickets} resolved</div>
+            {/* Ticket Status Pie */}
+            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={statLabelStyle}>Ticket Distribution</div>
+              <div style={{ width: '100%', height: '180px', margin: '15px 0' }}>
+                <Pie
+                  data={{
+                    labels: ['Open', 'Closed'],
+                    datasets: [{
+                      data: [analytics.open_tickets, analytics.closed_tickets],
+                      backgroundColor: ['#facc15', '#22c55e'],
+                      borderColor: 'transparent',
+                      hoverOffset: 4
+                    }]
+                  }}
+                  options={{
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', boxWidth: 10, font: { size: 10 } } } }
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Agent Workload Bar */}
+            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={statLabelStyle}>Agent Workload (Active Tickets)</div>
+              <div style={{ width: '100%', height: '180px', margin: '15px 0' }}>
+                <Bar
+                  data={{
+                    labels: analytics.agent_workload.map(a => a.username),
+                    datasets: [{
+                      label: 'Tickets',
+                      data: analytics.agent_workload.map(a => a.count),
+                      backgroundColor: '#6366f1',
+                      borderRadius: 4
+                    }]
+                  }}
+                  options={{
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } }, beginAtZero: true },
+                      x: { ticks: { color: '#9ca3af', font: { size: 10 } } }
+                    },
+                    plugins: { legend: { display: false } }
+                  }}
+                />
+              </div>
             </div>
           </div>
 
@@ -881,7 +975,7 @@ export default function AdminDashboard({ onLogout }) {
             <h3 style={{ fontSize: "14px", color: "#f9fafb", marginBottom: "12px" }}>Recent Activity</h3>
             <button style={successBtnStyle} onClick={handleBulkResolve}>Resolve All Open</button>
           </div>
-          
+
           <div style={tableWrapperStyle}>
             <table style={tableStyle}>
               <thead>

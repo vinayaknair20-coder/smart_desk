@@ -1,19 +1,26 @@
-# tickets/views.py - COMPLETE WITH ALL FEATURES + AUTO-CLASSIFICATION
 from rest_framework import viewsets, permissions, generics, status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 
-from .models import Ticket, SLATime, CommentThread, Comment, KnowledgeBase, CannedResponse
+from .models import Ticket, SLATime, CommentThread, Comment #, KnowledgeBase, CannedResponse
 from .serializers import (
     TicketSerializer,
     CommentSerializer,
     CommentThreadSerializer,
     SLATimeSerializer,
-    KnowledgeBaseSerializer,
-    CannedResponseSerializer,
+    # KnowledgeBaseSerializer,
+    # CannedResponseSerializer,
 )
 from .ai_classifier import classify_ticket  # NEW: Import auto-classifier
+from .email_service import (
+    send_ticket_created_notification,
+    send_ticket_assigned_notification,
+    send_ticket_status_changed_notification,
+    send_comment_added_notification
+)
 
+
+from .analytics import calculate_sla_compliance, calculate_fcr_rate, get_workload_stats
 
 class TicketViewSet(viewsets.ModelViewSet):
     """
@@ -23,6 +30,23 @@ class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    @action(detail=False, methods=['get'])
+    def analytics(self, request):
+        """Returns dashboard analytics metrics."""
+        # Only admins/agents can see analytics 
+        if request.user.role not in [1, 3] and not request.user.is_staff:
+            return Response({"error": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+            
+        data = {
+            "sla_compliance": calculate_sla_compliance(),
+            "fcr_rate": calculate_fcr_rate(),
+            "agent_workload": get_workload_stats(),
+            "total_tickets": Ticket.objects.count(),
+            "open_tickets": Ticket.objects.filter(status=1).count(),
+            "closed_tickets": Ticket.objects.filter(status=2).count(),
+        }
+        return Response(data)
 
     def get_queryset(self):
         user = self.request.user
@@ -63,6 +87,46 @@ class TicketViewSet(viewsets.ModelViewSet):
         print(f"   Subject: {subject[:50]}...")
         print(f"   Queue: {queue} | Priority: {priority_id}")
         print(f"   Reasoning: {ai_result['reasoning']}")
+        
+        # 📧 Send email notification to user
+        try:
+            send_ticket_created_notification(ticket, self.request.user.email)
+            print(f"   📧 Email sent to {self.request.user.email}")
+        except Exception as e:
+            print(f"   ⚠️ Email failed: {e}")
+    
+    def update(self, request, *args, **kwargs):
+        """Override update to send emails on assignment/status changes"""
+        instance = self.get_object()
+        old_status = instance.status
+        old_assigned = instance.assigned_user
+        
+        # Perform the update
+        response = super().update(request, *args, **kwargs)
+        instance.refresh_from_db()
+        
+        # Check if status changed
+        if old_status != instance.status:
+            try:
+                send_ticket_status_changed_notification(
+                    instance, 
+                    instance.created_user.email,
+                    old_status,
+                    instance.status
+                )
+                print(f"📧 Status change email sent to {instance.created_user.email}")
+            except Exception as e:
+                print(f"⚠️ Status email failed: {e}")
+        
+        # Check if assigned_user changed
+        if old_assigned != instance.assigned_user and instance.assigned_user:
+            try:
+                send_ticket_assigned_notification(instance, instance.assigned_user)
+                print(f"📧 Assignment email sent to {instance.assigned_user.email}")
+            except Exception as e:
+                print(f"⚠️ Assignment email failed: {e}")
+        
+        return response
 
 
 class SLATimeViewSet(viewsets.ModelViewSet):
@@ -80,34 +144,34 @@ class SLATimeViewSet(viewsets.ModelViewSet):
         return [permissions.IsAuthenticated()]
 
 
-class KnowledgeBaseViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for knowledge base articles.
-    Public can read, authenticated users can create/edit.
-    """
-    queryset = KnowledgeBase.objects.filter(is_active=True)
-    serializer_class = KnowledgeBaseSerializer
-
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-
-class CannedResponseViewSet(viewsets.ModelViewSet):
-    """
-    CRUD for canned responses.
-    Agents and admins can use.
-    """
-    queryset = CannedResponse.objects.all()
-    serializer_class = CannedResponseSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+# class KnowledgeBaseViewSet(viewsets.ModelViewSet):
+#     """
+#     CRUD for knowledge base articles.
+#     Public can read, authenticated users can create/edit.
+#     """
+#     queryset = KnowledgeBase.objects.filter(is_active=True)
+#     serializer_class = KnowledgeBaseSerializer
+# 
+#     def get_permissions(self):
+#         if self.action in ["list", "retrieve"]:
+#             return [permissions.AllowAny()]
+#         return [permissions.IsAuthenticated()]
+# 
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user)
+# 
+# 
+# class CannedResponseViewSet(viewsets.ModelViewSet):
+#     """
+#     CRUD for canned responses.
+#     Agents and admins can use.
+#     """
+#     queryset = CannedResponse.objects.all()
+#     serializer_class = CannedResponseSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+# 
+#     def perform_create(self, serializer):
+#         serializer.save(created_by=self.request.user)
 
 
 # ===== NEW: Proper REST viewsets for threads & comments =====
@@ -133,7 +197,36 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # Automatically set the user to the logged-in user
-        serializer.save(user=self.request.user)
+        comment = serializer.save(user=self.request.user)
+        
+        # 📧 Send email notification when comment is added
+        try:
+            # Get the ticket from the comment thread
+            thread = comment.thread
+            ticket = thread.ticket
+            
+            # Send to ticket creator if commenter is not the creator
+            if comment.user != ticket.created_user:
+                send_comment_added_notification(
+                    ticket, 
+                    comment, 
+                    ticket.created_user.email,
+                    ticket.created_user.username
+                )
+                print(f"📧 Comment notification sent to {ticket.created_user.email}")
+            
+            # Send to assigned agent if commenter is not the agent and ticket is assigned
+            if ticket.assigned_user and comment.user != ticket.assigned_user:
+                send_comment_added_notification(
+                    ticket,
+                    comment,
+                    ticket.assigned_user.email,
+                    ticket.assigned_user.username
+                )
+                print(f"📧 Comment notification sent to {ticket.assigned_user.email}")
+                
+        except Exception as e:
+            print(f"⚠️ Comment email failed: {e}")
 
 
 # ===== Legacy helpers (still OK to keep for convenience) =====

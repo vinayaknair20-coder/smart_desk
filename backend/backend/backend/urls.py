@@ -17,10 +17,12 @@ from tickets.views import (
     CommentCreateView,
     ticket_thread_view,
     SLATimeViewSet,
-    KnowledgeBaseViewSet,
-    CannedResponseViewSet,
     CommentThreadViewSet,   # NEW
     CommentViewSet,         # NEW
+)
+from knowledge.views import (
+    KnowledgeBaseViewSet,
+    CannedResponseViewSet,
 )
 from users.views import (
     RegisterView,
@@ -51,9 +53,6 @@ urlpatterns = [
     # ===== Comment & Thread Legacy Endpoints (optional but safe to keep) =====
     path("api/threads/<int:pk>/", CommentThreadDetailView.as_view(), name="thread-detail"),
     path("api/comments/create/", CommentCreateView.as_view(), name="comment-create-legacy"),
-
-    # ===== Ticket-specific Helper Endpoint =====
-    path("api/tickets/<int:pk>/thread/", ticket_thread_view, name="ticket-thread"),
 
     # ===== Router URLs (Tickets, Users, SLA, KB, Canned, Threads, Comments) =====
     path("api/", include(router.urls)),
