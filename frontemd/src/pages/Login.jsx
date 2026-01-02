@@ -8,7 +8,7 @@ const pageStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "#0f172a",
+  background: "#f0f4f8",
   fontFamily:
     "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
 };
@@ -81,7 +81,7 @@ const footerStyle = {
   textAlign: "center",
 };
 
-export default function Login({ onLoggedIn }) {
+export default function Login({ onLoggedIn, onBack }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -111,10 +111,10 @@ export default function Login({ onLoggedIn }) {
       if (res.data.user) {
         const role = res.data.user.role.toString(); // Convert to string
         const userId = res.data.user.id.toString();
-        
+
         localStorage.setItem("role", role);
         localStorage.setItem("user_id", userId);
-        
+
         console.log("✅ Login successful - Role:", role, "User ID:", userId);
       }
 
@@ -129,6 +129,37 @@ export default function Login({ onLoggedIn }) {
 
   return (
     <div style={pageStyle}>
+      {onBack && (
+        <button
+          onClick={onBack}
+          style={{
+            position: "absolute",
+            top: "24px",
+            left: "24px",
+            background: "transparent",
+            border: "1px solid #cbd5e1",
+            color: "#64748b",
+            padding: "8px 16px",
+            borderRadius: "8px",
+            fontSize: "14px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.background = "rgba(59,130,246,0.1)";
+            e.target.style.borderColor = "#3b82f6";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.background = "transparent";
+            e.target.style.borderColor = "rgba(255,255,255,0.2)";
+          }}
+        >
+          ← Back to Home
+        </button>
+      )}
       <div style={cardStyle}>
         <h1 style={titleStyle}>Smart Desk Login</h1>
         <p style={subtitleStyle}>Enter your credentials to continue.</p>

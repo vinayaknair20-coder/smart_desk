@@ -19,10 +19,12 @@ from tickets.views import (
     SLATimeViewSet,
     CommentThreadViewSet,   # NEW
     CommentViewSet,         # NEW
+    chat_with_ai,           # NEW AI Chatbot
 )
 from knowledge.views import (
     KnowledgeBaseViewSet,
     CannedResponseViewSet,
+    FAQViewSet, # NEW
 )
 from users.views import (
     RegisterView,
@@ -37,12 +39,14 @@ router.register(r"users", UserViewSet, basename="user")
 router.register(r"sla-settings", SLATimeViewSet, basename="sla-setting")
 router.register(r"knowledge-base", KnowledgeBaseViewSet, basename="knowledge-base")
 router.register(r"canned-responses", CannedResponseViewSet, basename="canned")
-router.register(r"comment-threads", CommentThreadViewSet, basename="comment-thread")  # NEW
-router.register(r"comments", CommentViewSet, basename="comment")                      # NEW
+router.register(r"faqs", FAQViewSet, basename="faq") # NEW
 
 urlpatterns = [
     # Django Admin
     path("admin/", admin.site.urls),
+
+    # Chatbot Endpoint
+    path("api/chat/", chat_with_ai, name="chat-ai"),
 
     # ===== Authentication Endpoints =====
     path("api/auth/register/", RegisterView.as_view(), name="register")

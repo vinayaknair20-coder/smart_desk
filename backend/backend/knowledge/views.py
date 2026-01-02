@@ -1,10 +1,24 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import KnowledgeBase, CannedResponse
-from .serializers import KnowledgeBaseSerializer, CannedResponseSerializer
+from .models import KnowledgeBase, CannedResponse, FAQ
+from .serializers import KnowledgeBaseSerializer, CannedResponseSerializer, FAQSerializer
 from .utils import generate_embedding, generate_query_embedding
 import numpy as np
+
+class FAQViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for FAQs.
+    Public read access for landing page. Admin write access.
+    """
+    queryset = FAQ.objects.filter(is_active=True)
+    serializer_class = FAQSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return FAQ.objects.all()
+        return FAQ.objects.filter(is_active=True)
 
 class KnowledgeBaseViewSet(viewsets.ModelViewSet):
     """
@@ -39,55 +53,37 @@ class KnowledgeBaseViewSet(viewsets.ModelViewSet):
     def search(self, request):
         """
         Semantic search endpoint.
-        GET /api/knowledge/search/?q=how to fix vpn
         """
         query = request.query_params.get('q', None)
         if not query:
             return Response({"error": "No query provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1. Generate embedding for query
-        query_vec = generate_query_embedding(query)
-        if not query_vec:
-            # Fallback to simple database search
-            results = self.queryset.filter(title__icontains=query) | self.queryset.filter(content__icontains=query)
-            serializer = self.get_serializer(results[:5], many=True)
-            return Response({
-                "mode": "keyword_fallback", 
-                "results": serializer.data
-            })
-
-        # 2. Vector Search (Cosine Similarity)
-        # Load all active articles with embeddings
-        articles = [a for a in self.queryset if a.embedding]
+        from .utils import semantic_search
+        results = semantic_search(query)
         
-        if not articles:
-             return Response({"mode": "empty", "results": []})
-
-        scored_results = []
-        q_vec = np.array(query_vec)
-        
-        for article in articles:
-            a_vec = np.array(article.embedding)
-            
-            # Cosine Similarity: (A . B) / (||A|| * ||B||)
-            dot_product = np.dot(q_vec, a_vec)
-            norm_q = np.linalg.norm(q_vec)
-            norm_a = np.linalg.norm(a_vec)
-            
-            similarity = dot_product / (norm_q * norm_a)
-            scored_results.append((similarity, article))
-            
-        # Sort by similarity (highest first)
-        scored_results.sort(key=lambda x: x[0], reverse=True)
-        
-        # Top 5
-        top_results = [item[1] for item in scored_results[:5]]
-        
-        serializer = self.get_serializer(top_results, many=True)
+        serializer = self.get_serializer(results, many=True)
         return Response({
             "mode": "semantic",
             "results": serializer.data
         })
+
+    @action(detail=False, methods=['get'])
+    def suggest(self, request):
+        """
+        Fast autocomplete suggestions.
+        """
+        query = request.query_params.get('q', '')
+        if len(query) < 2:
+            return Response([])
+
+        results = KnowledgeBase.objects.filter(
+            Q(title__icontains=query) | Q(tags__icontains=query),
+            is_active=True
+        ).only('id', 'title')[:5]
+
+        # Use a simple list of dicts for suggestions to keep it fast
+        suggestions = [{"id": r.id, "title": r.title} for r in results]
+        return Response(suggestions)
 
 class CannedResponseViewSet(viewsets.ModelViewSet):
     """

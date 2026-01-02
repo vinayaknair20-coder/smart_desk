@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import api from "./api/client";
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
 import AgentDashboard from "./pages/AgentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -82,23 +83,19 @@ function App() {
     if (currentPage === "landing") {
       return <LandingPage onNavigate={handleNavigate} />;
     }
+    if (currentPage === "register") {
+      return <Register onLoggedIn={handleLoggedIn} onBack={() => setCurrentPage("landing")} onNavigate={handleNavigate} />;
+    }
     return <Login onLoggedIn={handleLoggedIn} onBack={() => setCurrentPage("landing")} />;
   }
 
-  // DEBUG: Show which component is being rendered
-  console.log("🎨 Rendering dashboard for role:", userRole);
-
-  // Route based on role
+  // Determine which dashboard to show based on role
   if (userRole === "1") {
-    console.log("👑 Loading AdminDashboard");
     return <AdminDashboard onLogout={handleLogout} />;
   }
-
   if (userRole === "3") {
-    console.log("🛠️ Loading AgentDashboard");
     return <AgentDashboard onLogout={handleLogout} />;
   }
-
   console.log("👤 Loading UserDashboard");
   return <UserDashboard onLogout={handleLogout} />;
 }

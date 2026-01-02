@@ -24,8 +24,8 @@ ChartJS.register(
 
 const pageStyle = {
   minHeight: "100vh",
-  background: "radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%)",
-  color: "#e5e7eb",
+  background: "#f0f4f8",
+  color: "#1e293b",
   fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   padding: "24px 40px 32px",
   boxSizing: "border-box",
@@ -47,19 +47,19 @@ const titleBlockStyle = {
 const h1Style = {
   fontSize: "24px",
   fontWeight: 600,
-  color: "#f9fafb",
+  color: "#0f172a",
 };
 
 const subtitleStyle = {
   fontSize: "13px",
-  color: "#9ca3af",
+  color: "#64748b",
 };
 
 const outlineBtnStyle = {
   borderRadius: "999px",
-  background: "linear-gradient(135deg, rgba(15,23,42,0.8), rgba(15,23,42,0.9))",
-  color: "#e5e7eb",
-  border: "1px solid #4b5563",
+  background: "#ffffff",
+  color: "#374151",
+  border: "1px solid #d1d5db",
   padding: "7px 14px",
   fontSize: "12px",
   cursor: "pointer",
@@ -130,15 +130,17 @@ const statsRowStyle = {
 const statCardStyle = {
   flex: "0 0 210px",
   borderRadius: "16px",
-  background: "linear-gradient(145deg, rgba(15,23,42,0.95), rgba(15,23,42,0.85))",
-  border: "1px solid rgba(30,64,175,0.55)",
+  flex: "0 0 210px",
+  borderRadius: "16px",
+  background: "#ffffff",
+  border: "1px solid #e2e8f0",
   padding: "12px 14px 14px",
-  boxShadow: "0 18px 40px rgba(15,23,42,0.9), inset 0 0 0 0.5px rgba(148,163,184,0.15)",
+  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
 };
 
 const statLabelStyle = {
   fontSize: "11px",
-  color: "#9ca3af",
+  color: "#64748b",
   letterSpacing: "0.04em",
   textTransform: "uppercase",
 };
@@ -147,7 +149,7 @@ const statValueStyle = {
   marginTop: "4px",
   fontSize: "22px",
   fontWeight: 600,
-  color: "#e5e7eb",
+  color: "#0f172a",
 };
 
 const statSubStyle = {
@@ -158,9 +160,10 @@ const statSubStyle = {
 
 const panelStyle = {
   borderRadius: "18px",
-  background: "linear-gradient(145deg, rgba(15,23,42,0.97), rgba(15,23,42,0.98))",
-  border: "1px solid #111827",
-  boxShadow: "0 22px 60px rgba(0,0,0,0.9)",
+  borderRadius: "18px",
+  background: "#ffffff",
+  border: "1px solid #e2e8f0",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.05)",
   padding: "14px 16px 18px",
   marginTop: "6px",
   marginBottom: "20px",
@@ -169,14 +172,20 @@ const panelStyle = {
 const sectionTitleStyle = {
   fontSize: "16px",
   fontWeight: 600,
-  color: "#f9fafb",
+  fontSize: "16px",
+  fontWeight: 600,
+  color: "#0f172a",
+  marginBottom: "12px",
   marginBottom: "12px",
 };
 
 const tableWrapperStyle = {
   marginTop: "8px",
   borderRadius: "14px",
-  border: "1px solid rgba(15,23,42,0.9)",
+  marginTop: "8px",
+  borderRadius: "14px",
+  border: "1px solid #e2e8f0",
+  overflow: "hidden",
   overflow: "hidden",
 };
 
@@ -188,25 +197,28 @@ const tableStyle = {
 };
 
 const thStyle = {
-  background: "linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.96))",
-  color: "#9ca3af",
+  background: "#f8fafc",
+  color: "#64748b",
   textAlign: "left",
   padding: "9px 12px",
-  borderBottom: "1px solid #111827",
+  borderBottom: "1px solid #e2e8f0",
   fontWeight: 500,
 };
 
 const tdBase = {
   padding: "9px 12px",
-  borderBottom: "1px solid rgba(15,23,42,0.9)",
+  padding: "9px 12px",
+  borderBottom: "1px solid #e2e8f0",
+  cursor: "pointer",
   cursor: "pointer",
 };
 
 const selectStyle = {
   borderRadius: "8px",
-  border: "1px solid #374151",
-  background: "#020617",
-  color: "#e5e7eb",
+  borderRadius: "8px",
+  border: "1px solid #cbd5e1",
+  background: "#ffffff",
+  color: "#0f172a",
   padding: "5px 8px",
   fontSize: "11px",
   outline: "none",
@@ -228,23 +240,30 @@ const modalCardStyle = {
   maxHeight: "85vh",
   overflowY: "auto",
   borderRadius: "18px",
-  background: "linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.98))",
-  border: "1px solid #111827",
-  boxShadow: "0 22px 80px rgba(0, 0, 0, 0.9)",
+  borderRadius: "18px",
+  background: "#ffffff",
+  border: "1px solid #cbd5e1",
+  boxShadow: "0 20px 50px rgba(0, 0, 0, 0.15)",
   padding: "18px 18px 16px",
 };
 
 const modalTitleStyle = {
   fontSize: "18px",
   fontWeight: 600,
-  color: "#f9fafb",
+  fontSize: "18px",
+  fontWeight: 600,
+  color: "#0f172a",
+  marginBottom: "4px",
   marginBottom: "4px",
 };
 
 const fieldLabelStyle = {
   fontSize: "11px",
   fontWeight: 500,
-  color: "#d1d5db",
+  fontSize: "11px",
+  fontWeight: 500,
+  color: "#475569",
+  marginBottom: "3px",
   marginBottom: "3px",
   display: "block",
   marginTop: "10px",
@@ -253,9 +272,10 @@ const fieldLabelStyle = {
 const fieldInputStyle = {
   width: "100%",
   borderRadius: "10px",
-  border: "1px solid #374151",
-  background: "#020617",
-  color: "#e5e7eb",
+  borderRadius: "10px",
+  border: "1px solid #cbd5e1",
+  background: "#ffffff",
+  color: "#0f172a",
   padding: "7px 10px",
   fontSize: "12px",
   outline: "none",
@@ -280,7 +300,12 @@ const tabBarStyle = {
   display: "flex",
   gap: "8px",
   marginBottom: "16px",
-  borderBottom: "1px solid #374151",
+  display: "flex",
+  gap: "8px",
+  marginBottom: "16px",
+  borderBottom: "1px solid #cbd5e1",
+  paddingBottom: "8px",
+  flexWrap: "wrap",
   paddingBottom: "8px",
   flexWrap: "wrap",
 };
@@ -289,7 +314,10 @@ const tabStyle = (active) => ({
   padding: "8px 16px",
   borderRadius: "8px 8px 0 0",
   background: active ? "linear-gradient(135deg, #fb923c 0%, #f97316 40%, #ea580c 100%)" : "transparent",
-  color: active ? "#ffffff" : "#9ca3af",
+  padding: "8px 16px",
+  borderRadius: "8px 8px 0 0",
+  background: active ? "linear-gradient(135deg, #fb923c 0%, #f97316 40%, #ea580c 100%)" : "transparent",
+  color: active ? "#ffffff" : "#64748b",
   border: "none",
   cursor: "pointer",
   fontSize: "13px",
@@ -300,9 +328,9 @@ const tabStyle = (active) => ({
 const searchInputStyle = {
   flex: "1 1 220px",
   borderRadius: "999px",
-  border: "1px solid #374151",
-  background: "#020617",
-  color: "#e5e7eb",
+  border: "1px solid #cbd5e1",
+  background: "#ffffff",
+  color: "#0f172a",
   padding: "7px 11px",
   fontSize: "12px",
   outline: "none",
@@ -350,14 +378,14 @@ const STATUS_MAP = { 1: "Open", 2: "Closed" };
 function getStatusBadge(status) {
   const base = { ...statusBadgeBase };
   if (status === 1) {
-    base.background = "#0f172a";
-    base.color = "#facc15";
-    base.border = "1px solid #facc15";
+    base.background = "#fffbeb";
+    base.color = "#d97706";
+    base.border = "1px solid #fcd34d";
     return { style: base, text: "Open" };
   } else if (status === 2) {
-    base.background = "#052e16";
-    base.color = "#bbf7d0";
-    base.border = "1px solid #22c55e";
+    base.background = "#dcfce7";
+    base.color = "#15803d";
+    base.border = "1px solid #86efac";
     return { style: base, text: "Closed" };
   }
   return { style: base, text: "Unknown" };
@@ -367,6 +395,71 @@ export default function AdminDashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState("overview");
   const [users, setUsers] = useState([]);
   const [tickets, setTickets] = useState([]);
+
+  // Sorting State
+  const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'desc' });
+
+  const requestSort = (key) => {
+    let direction = 'asc';
+    // Toggle: If currently sorting by this key in ASC, switch to DESC.
+    // Otherwise (different key OR currently DESC), switch to ASC?
+    // Wait, usually: Click -> ASC, Click again -> DESC.
+    // My previous logic: If key match & asc -> desc. Else asc.
+    // If I want "Latest First" (Desc) to be default for ID:
+    // When I click ID (currently Desc), I want Asc.
+    // When I click ID (currently Asc), I want Desc.
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Combined Filter & Sort
+  const getProcessedTickets = () => {
+    if (!tickets) return [];
+
+    let result = [...tickets];
+
+    // 1. Filter by Search (ID or Subject)
+    if (ticketSearch.trim()) {
+      const q = ticketSearch.toLowerCase();
+      result = result.filter(t =>
+        (t.subject && t.subject.toLowerCase().includes(q)) ||
+        String(t.id).includes(q)
+      );
+    }
+
+    // 2. Filter by Status
+    if (statusFilter !== "all") {
+      result = result.filter(t => t.status === Number(statusFilter));
+    }
+
+    // 3. Filter by Queue
+    if (queueFilter !== "all") {
+      result = result.filter(t => t.queue === Number(queueFilter));
+    }
+
+    // 4. Sort
+    result.sort((a, b) => {
+      const valA = a[sortConfig.key];
+      const valB = b[sortConfig.key];
+
+      // Number comparison (ID, Queue, Priority, Status, AssignedTo if number)
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
+      }
+
+      // String comparison
+      const strA = String(valA || '').toLowerCase();
+      const strB = String(valB || '').toLowerCase();
+
+      if (strA < strB) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (strA > strB) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return result;
+  };
   const [agents, setAgents] = useState([]);
   const [knowledgeBase, setKnowledgeBase] = useState([]);
   const [cannedResponses, setCannedResponses] = useState([]);
@@ -430,6 +523,14 @@ export default function AdminDashboard({ onLogout }) {
   const [slaPriority, setSlaPriority] = useState("1");
   const [slaMinutes, setSlaMinutes] = useState("");
 
+  // FAQ State
+  const [faqs, setFaqs] = useState([]);
+  const [showFAQModal, setShowFAQModal] = useState(false);
+  const [selectedFAQ, setSelectedFAQ] = useState(null);
+  const [faqQuestion, setFaqQuestion] = useState("");
+  const [faqAnswer, setFaqAnswer] = useState("");
+  const [faqOrder, setFaqOrder] = useState("0");
+
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
@@ -459,6 +560,16 @@ export default function AdminDashboard({ onLogout }) {
       showNotification("Failed to load tickets", "error");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFAQs = async () => {
+    try {
+      const res = await api.get("/api/faqs/");
+      setFaqs(res.data);
+    } catch (err) {
+      console.error("Failed to fetch FAQs:", err);
+      showNotification("Failed to load FAQs", "error");
     }
   };
 
@@ -541,6 +652,10 @@ export default function AdminDashboard({ onLogout }) {
         await api.delete(`/api/sla-settings/${deleteTarget.id}/`);
         showNotification("SLA setting deleted successfully");
         fetchSLASettings();
+      } else if (deleteTarget.type === "faq") {
+        await api.delete(`/api/faqs/${deleteTarget.id}/`);
+        showNotification("FAQ deleted successfully");
+        fetchFAQs();
       }
     } catch (error) {
       console.error("Failed to delete:", error);
@@ -550,6 +665,8 @@ export default function AdminDashboard({ onLogout }) {
       setDeleteTarget(null);
     }
   };
+
+  // ... (User Create Handler omitted for brevity, keeping existing)
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -580,6 +697,7 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  // ... (Ticket Handlers omitted)
   const openTicketModal = (ticket) => {
     setSelectedTicket(ticket);
     setTicketStatus(ticket.status);
@@ -642,6 +760,7 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  // ... (KB Handlers omitted)
   const openKBModal = (kb = null) => {
     if (kb) {
       setSelectedKB(kb);
@@ -690,6 +809,7 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  // ... (Canned & SLA Handlers omitted)
   const openCannedModal = (canned = null) => {
     if (canned) {
       setSelectedCanned(canned);
@@ -781,11 +901,67 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  // FAQ Handlers
+  const openFAQModal = (faq = null) => {
+    if (faq) {
+      setSelectedFAQ(faq);
+      setFaqQuestion(faq.question);
+      setFaqAnswer(faq.answer);
+      setFaqOrder(faq.order.toString());
+    } else {
+      setSelectedFAQ(null);
+      setFaqQuestion("");
+      setFaqAnswer("");
+      setFaqOrder("0");
+    }
+    setShowFAQModal(true);
+  };
+
+  const handleSaveFAQ = async (e) => {
+    e.preventDefault();
+    if (!faqQuestion.trim() || !faqAnswer.trim()) {
+      showNotification("Question and answer are required", "error");
+      return;
+    }
+
+    setCreating(true);
+    try {
+      if (selectedFAQ) {
+        await api.patch(`/api/faqs/${selectedFAQ.id}/`, {
+          question: faqQuestion,
+          answer: faqAnswer,
+          order: Number(faqOrder)
+        });
+        showNotification("FAQ updated");
+      } else {
+        await api.post("/api/faqs/", {
+          question: faqQuestion,
+          answer: faqAnswer,
+          order: Number(faqOrder)
+        });
+        showNotification("FAQ created");
+      }
+      setShowFAQModal(false);
+      fetchFAQs();
+    } catch (error) {
+      showNotification("Failed to save FAQ", "error");
+    } finally {
+      setCreating(false);
+    }
+  };
+
   const exportData = (type) => {
-    const data = type === "users" ? users : tickets;
-    const csv = type === "users"
-      ? "ID,Username,Email,Role\n" + users.map(u => `${u.id},${u.username},${u.email},${ROLE_OPTIONS.find(r => r.id === u.role)?.label}`).join("\n")
-      : "ID,Subject,Queue,Priority,Status\n" + tickets.map(t => `${t.id},${t.subject},${QUEUE_MAP[t.queue]},${PRIORITY_MAP[t.priority_id]},${STATUS_MAP[t.status]}`).join("\n");
+    let data, csv;
+    if (type === "users") {
+      data = users;
+      csv = "ID,Username,Email,Role\n" + users.map(u => `${u.id},${u.username},${u.email},${ROLE_OPTIONS.find(r => r.id === u.role)?.label}`).join("\n");
+    } else if (type === "faqs") {
+      data = faqs;
+      csv = "ID,Question,Answer,Order\n" + faqs.map(f => `${f.id},"${f.question}","${f.answer}",${f.order}`).join("\n");
+    } else {
+      data = tickets;
+      csv = "ID,Subject,Queue,Priority,Status\n" + tickets.map(t => `${t.id},"${t.subject}",${QUEUE_MAP[t.queue]},${PRIORITY_MAP[t.priority_id]},${STATUS_MAP[t.status]}`).join("\n");
+    }
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -803,6 +979,7 @@ export default function AdminDashboard({ onLogout }) {
     fetchCannedResponses();
     fetchSLASettings();
     fetchAnalytics();
+    fetchFAQs();
   }, []);
 
   const totalUsers = users.length;
@@ -820,12 +997,7 @@ export default function AdminDashboard({ onLogout }) {
     (u.email || "").toLowerCase().includes(userSearch.toLowerCase())
   );
 
-  const filteredTickets = tickets.filter(t => {
-    const matchesSearch = t.subject.toLowerCase().includes(ticketSearch.toLowerCase()) || t.id.toString().includes(ticketSearch);
-    const matchesStatus = statusFilter === "all" || t.status === Number(statusFilter);
-    const matchesQueue = queueFilter === "all" || t.queue === Number(queueFilter);
-    return matchesSearch && matchesStatus && matchesQueue;
-  });
+
 
   const filteredKB = knowledgeBase.filter(kb =>
     (kb.title || "").toLowerCase().includes(kbSearch.toLowerCase()) ||
@@ -888,6 +1060,7 @@ export default function AdminDashboard({ onLogout }) {
         <button style={tabStyle(activeTab === "knowledge")} onClick={() => setActiveTab("knowledge")}>📚 Knowledge Base</button>
         <button style={tabStyle(activeTab === "canned")} onClick={() => setActiveTab("canned")}>💬 Canned Responses</button>
         <button style={tabStyle(activeTab === "sla")} onClick={() => setActiveTab("sla")}>⏱️ SLA Settings</button>
+        <button style={tabStyle(activeTab === "faqs")} onClick={() => setActiveTab("faqs")}>❓ FAQs</button>
       </div>
 
       {/* OVERVIEW TAB */}
@@ -897,7 +1070,7 @@ export default function AdminDashboard({ onLogout }) {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginTop: "16px" }}>
             {/* SLA Compliance Doughnut */}
-            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ ...statCardStyle, background: '#ffffff', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={statLabelStyle}>SLA Compliance</div>
               <div style={{ width: '100%', height: '180px', margin: '15px 0', position: 'relative' }}>
                 <Doughnut
@@ -923,7 +1096,7 @@ export default function AdminDashboard({ onLogout }) {
             </div>
 
             {/* Ticket Status Pie */}
-            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ ...statCardStyle, background: '#ffffff', minHeight: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
               <div style={statLabelStyle}>Ticket Distribution</div>
               <div style={{ width: '100%', height: '180px', margin: '15px 0' }}>
                 <Pie
@@ -945,7 +1118,7 @@ export default function AdminDashboard({ onLogout }) {
             </div>
 
             {/* Agent Workload Bar */}
-            <div style={{ ...statCardStyle, background: 'rgba(15,23,42,0.95)', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ ...statCardStyle, background: '#ffffff', minHeight: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
               <div style={statLabelStyle}>Agent Workload (Active Tickets)</div>
               <div style={{ width: '100%', height: '180px', margin: '15px 0' }}>
                 <Bar
@@ -961,8 +1134,8 @@ export default function AdminDashboard({ onLogout }) {
                   options={{
                     maintainAspectRatio: false,
                     scales: {
-                      y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 10 } }, beginAtZero: true },
-                      x: { ticks: { color: '#9ca3af', font: { size: 10 } } }
+                      y: { grid: { color: 'rgba(0,0,0,0.1)' }, ticks: { color: '#64748b', font: { size: 10 } }, beginAtZero: true },
+                      x: { ticks: { color: '#64748b', font: { size: 10 } } }
                     },
                     plugins: { legend: { display: false } }
                   }}
@@ -972,7 +1145,7 @@ export default function AdminDashboard({ onLogout }) {
           </div>
 
           <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ fontSize: "14px", color: "#f9fafb", marginBottom: "12px" }}>Recent Activity</h3>
+            <h3 style={{ fontSize: "14px", color: "#0f172a", marginBottom: "12px" }}>Recent Activity</h3>
             <button style={successBtnStyle} onClick={handleBulkResolve}>Resolve All Open</button>
           </div>
 
@@ -980,18 +1153,18 @@ export default function AdminDashboard({ onLogout }) {
             <table style={tableStyle}>
               <thead>
                 <tr>
-                  <th style={thStyle}>Ticket ID</th>
-                  <th style={thStyle}>Subject</th>
-                  <th style={thStyle}>Queue</th>
-                  <th style={thStyle}>Status</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('id')}>Ticket ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('subject')}>Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('queue')}>Queue {sortConfig.key === 'queue' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('status')}>Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={thStyle}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {tickets.slice(0, 10).map((t, index) => {
+                {getProcessedTickets().slice(0, 10).map((t, index) => {
                   const statusBadge = getStatusBadge(t.status);
                   return (
-                    <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                    <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>#{t.id}</td>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>{t.subject}</td>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>{QUEUE_MAP[t.queue]}</td>
@@ -1050,7 +1223,7 @@ export default function AdminDashboard({ onLogout }) {
                   <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={5}>No users found</td></tr>
                 ) : (
                   filteredUsers.map((u, index) => (
-                    <tr key={u.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                    <tr key={u.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={{ ...tdBase, cursor: "default" }}>{u.id}</td>
                       <td style={{ ...tdBase, cursor: "default" }}>{u.username}</td>
                       <td style={{ ...tdBase, cursor: "default" }}>{u.email || "—"}</td>
@@ -1075,7 +1248,7 @@ export default function AdminDashboard({ onLogout }) {
       {activeTab === "tickets" && (
         <div style={panelStyle}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-            <div style={sectionTitleStyle}>All Tickets ({filteredTickets.length})</div>
+            <div style={sectionTitleStyle}>All Tickets ({getProcessedTickets().length})</div>
             <div style={{ display: "flex", gap: "8px" }}>
               <button style={outlineBtnStyle} onClick={() => exportData("tickets")}>Export CSV</button>
               <button style={successBtnStyle} onClick={handleBulkResolve}>Resolve All Open</button>
@@ -1089,12 +1262,14 @@ export default function AdminDashboard({ onLogout }) {
               value={ticketSearch}
               onChange={(e) => setTicketSearch(e.target.value)}
             />
-            <select style={selectStyle} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          </div>
+          <div style={filterRowStyle}>
+            <select style={{ ...selectStyle, flex: 1 }} value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
               <option value="all">All Status</option>
               <option value="1">Open</option>
               <option value="2">Closed</option>
             </select>
-            <select style={selectStyle} value={queueFilter} onChange={(e) => setQueueFilter(e.target.value)}>
+            <select style={{ ...selectStyle, flex: 1 }} value={queueFilter} onChange={e => setQueueFilter(e.target.value)}>
               <option value="all">All Queues</option>
               <option value="1">HR</option>
               <option value="2">IT</option>
@@ -1107,24 +1282,24 @@ export default function AdminDashboard({ onLogout }) {
             <table style={tableStyle}>
               <thead>
                 <tr>
-                  <th style={thStyle}>ID</th>
-                  <th style={thStyle}>Subject</th>
-                  <th style={thStyle}>Queue</th>
-                  <th style={thStyle}>Priority</th>
-                  <th style={thStyle}>Status</th>
-                  <th style={thStyle}>Assigned To</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('id')}>ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('subject')}>Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('queue')}>Queue {sortConfig.key === 'queue' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('priority_id')}>Priority {sortConfig.key === 'priority_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('status')}>Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('assigned_to')}>Assigned To {sortConfig.key === 'assigned_to' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={thStyle}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredTickets.length === 0 ? (
+                {getProcessedTickets().length === 0 ? (
                   <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={7}>No tickets found</td></tr>
                 ) : (
-                  filteredTickets.map((t, index) => {
+                  getProcessedTickets().map((t, index) => {
                     const statusBadge = getStatusBadge(t.status);
                     const assignedAgent = agents.find(a => a.id === t.assigned_to);
                     return (
-                      <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                      <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>#{t.id}</td>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>{t.subject}</td>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>{QUEUE_MAP[t.queue]}</td>
@@ -1180,7 +1355,7 @@ export default function AdminDashboard({ onLogout }) {
                   <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={4}>No articles found</td></tr>
                 ) : (
                   filteredKB.map((kb, index) => (
-                    <tr key={kb.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                    <tr key={kb.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={tdBase} onClick={() => openKBModal(kb)}>{kb.title}</td>
                       <td style={tdBase} onClick={() => openKBModal(kb)}>{kb.tags || "—"}</td>
                       <td style={tdBase} onClick={() => openKBModal(kb)}>{new Date(kb.created_at).toLocaleDateString()}</td>
@@ -1229,7 +1404,7 @@ export default function AdminDashboard({ onLogout }) {
                   <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={4}>No responses found</td></tr>
                 ) : (
                   filteredCanned.map((c, index) => (
-                    <tr key={c.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                    <tr key={c.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={tdBase} onClick={() => openCannedModal(c)}>{c.title}</td>
                       <td style={tdBase} onClick={() => openCannedModal(c)}>{c.search_tags || "—"}</td>
                       <td style={tdBase} onClick={() => openCannedModal(c)}>{c.response_text.substring(0, 50)}...</td>
@@ -1269,13 +1444,56 @@ export default function AdminDashboard({ onLogout }) {
                   <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={4}>No SLA settings found</td></tr>
                 ) : (
                   slaSettings.map((sla, index) => (
-                    <tr key={sla.id} style={{ backgroundColor: index % 2 === 0 ? "rgba(15,23,42,0.9)" : "rgba(15,23,42,0.96)" }}>
+                    <tr key={sla.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={{ ...tdBase, cursor: "default" }}>{sla.priority_display}</td>
                       <td style={{ ...tdBase, cursor: "default" }}>{sla.sla_time_minutes}</td>
                       <td style={{ ...tdBase, cursor: "default" }}>{(sla.sla_time_minutes / 60).toFixed(1)}</td>
                       <td style={{ ...tdBase, cursor: "default" }}>
                         <button style={actionBtnStyle} onClick={() => openSLAModal(sla)}>Edit</button>
                         <button style={deleteBtnStyle} onClick={() => confirmDelete("sla", sla.id)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ TAB */}
+      {activeTab === "faqs" && (
+        <div style={panelStyle}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+            <div style={sectionTitleStyle}>Landing Page FAQs ({faqs.length})</div>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button style={outlineBtnStyle} onClick={() => exportData("faqs")}>Export CSV</button>
+              <button style={primaryBtnStyle} onClick={() => openFAQModal()}>+ Add FAQ</button>
+            </div>
+          </div>
+
+          <div style={tableWrapperStyle}>
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>Order</th>
+                  <th style={thStyle}>Question</th>
+                  <th style={thStyle}>Answer</th>
+                  <th style={thStyle}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {faqs.length === 0 ? (
+                  <tr><td style={{ ...tdBase, padding: "14px 10px", color: "#6b7280", cursor: "default" }} colSpan={4}>No FAQs found</td></tr>
+                ) : (
+                  faqs.map((f, index) => (
+                    <tr key={f.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
+                      <td style={{ ...tdBase, cursor: "default" }}>{f.order}</td>
+                      <td style={{ ...tdBase, cursor: "default" }}>{f.question}</td>
+                      <td style={{ ...tdBase, cursor: "default" }}>{f.answer.length > 50 ? f.answer.substring(0, 50) + "..." : f.answer}</td>
+                      <td style={{ ...tdBase, cursor: "default" }}>
+                        <button style={actionBtnStyle} onClick={() => openFAQModal(f)}>Edit</button>
+                        <button style={deleteBtnStyle} onClick={() => confirmDelete("faq", f.id)}>Delete</button>
                       </td>
                     </tr>
                   ))
@@ -1330,10 +1548,10 @@ export default function AdminDashboard({ onLogout }) {
               <button style={outlineBtnStyle} onClick={() => setShowTicketModal(false)}>Close</button>
             </div>
 
-            <div style={{ fontSize: "13px", color: "#e5e7eb", marginBottom: "8px" }}>
+            <div style={{ fontSize: "13px", color: "#0f172a", marginBottom: "8px" }}>
               <strong>Subject:</strong> {selectedTicket.subject}
             </div>
-            <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "16px", padding: "10px", background: "rgba(15,23,42,0.5)", borderRadius: "8px" }}>
+            <div style={{ fontSize: "12px", color: "#64748b", marginBottom: "16px", padding: "10px", background: "#f1f5f9", borderRadius: "8px" }}>
               {selectedTicket.description || "No description"}
             </div>
 
@@ -1414,24 +1632,24 @@ export default function AdminDashboard({ onLogout }) {
         <div style={modalBackdropStyle} onClick={() => setShowCannedModal(false)}>
           <div style={modalCardStyle} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-              <div style={modalTitleStyle}>{selectedCanned ? "Edit" : "Create"} Canned Response</div>
+              <div style={modalTitleStyle}>{selectedCanned ? "Edit" : "Create"} Template</div>
               <button style={outlineBtnStyle} onClick={() => setShowCannedModal(false)}>Close</button>
             </div>
 
             <form onSubmit={handleSaveCanned}>
               <label style={fieldLabelStyle}>Title *</label>
-              <input style={fieldInputStyle} value={cannedTitle} onChange={(e) => setCannedTitle(e.target.value)} placeholder="Response title" required />
+              <input style={fieldInputStyle} value={cannedTitle} onChange={(e) => setCannedTitle(e.target.value)} placeholder="Template title" required />
 
               <label style={fieldLabelStyle}>Response Text *</label>
-              <textarea style={textAreaStyle} value={cannedText} onChange={(e) => setCannedText(e.target.value)} placeholder="Pre-written response..." required />
+              <textarea style={textAreaStyle} value={cannedText} onChange={(e) => setCannedText(e.target.value)} placeholder="The full response text..." required />
 
-              <label style={fieldLabelStyle}>Search Tags (comma-separated)</label>
-              <input style={fieldInputStyle} value={cannedTags} onChange={(e) => setCannedTags(e.target.value)} placeholder="password,reset,acknowledge" />
+              <label style={fieldLabelStyle}>Search Tags</label>
+              <input style={fieldInputStyle} value={cannedTags} onChange={(e) => setCannedTags(e.target.value)} placeholder="keyword1,keyword2" />
 
               <div style={modalFooterStyle}>
                 <button type="button" style={outlineBtnStyle} onClick={() => setShowCannedModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...primaryBtnStyle, opacity: creating ? 0.7 : 1 }} disabled={creating}>
-                  {creating ? "Saving..." : "Save Response"}
+                  {creating ? "Saving..." : "Save Template"}
                 </button>
               </div>
             </form>
@@ -1439,34 +1657,135 @@ export default function AdminDashboard({ onLogout }) {
         </div>
       )}
 
-      {/* SLA SETTINGS MODAL */}
+      {/* SLA MODAL */}
       {showSLAModal && (
         <div style={modalBackdropStyle} onClick={() => setShowSLAModal(false)}>
           <div style={modalCardStyle} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
-              <div style={modalTitleStyle}>{selectedSLA ? "Edit" : "Create"} SLA Setting</div>
+              <div style={modalTitleStyle}>{selectedSLA ? "Edit" : "Add"} SLA Rule</div>
               <button style={outlineBtnStyle} onClick={() => setShowSLAModal(false)}>Close</button>
             </div>
 
             <form onSubmit={handleSaveSLA}>
               <label style={fieldLabelStyle}>Priority *</label>
-              <select style={fieldInputStyle} value={slaPriority} onChange={(e) => setSlaPriority(e.target.value)} disabled={!!selectedSLA}>
+              <select style={fieldInputStyle} value={slaPriority} onChange={(e) => setSlaPriority(e.target.value)}>
                 <option value="1">High</option>
                 <option value="2">Medium</option>
                 <option value="3">Low</option>
               </select>
 
-              <label style={fieldLabelStyle}>Response Time (minutes) *</label>
-              <input type="number" style={fieldInputStyle} value={slaMinutes} onChange={(e) => setSlaMinutes(e.target.value)} placeholder="60" required />
-
-              <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "6px" }}>
-                = {slaMinutes ? (Number(slaMinutes) / 60).toFixed(1) : 0} hours
-              </div>
+              <label style={fieldLabelStyle}>Response Target (Minutes) *</label>
+              <input type="number" style={fieldInputStyle} value={slaMinutes} onChange={(e) => setSlaMinutes(e.target.value)} placeholder="e.g. 60" required />
 
               <div style={modalFooterStyle}>
                 <button type="button" style={outlineBtnStyle} onClick={() => setShowSLAModal(false)}>Cancel</button>
                 <button type="submit" style={{ ...primaryBtnStyle, opacity: creating ? 0.7 : 1 }} disabled={creating}>
-                  {creating ? "Saving..." : "Save SLA"}
+                  {creating ? "Saving..." : "Save Rule"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ MODAL */}
+      {showFAQModal && (
+        <div style={modalBackdropStyle} onClick={() => setShowFAQModal(false)}>
+          <div style={modalCardStyle} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div style={modalTitleStyle}>{selectedFAQ ? "Edit" : "Create"} FAQ</div>
+              <button style={outlineBtnStyle} onClick={() => setShowFAQModal(false)}>Close</button>
+            </div>
+
+            <form onSubmit={handleSaveFAQ}>
+              <label style={fieldLabelStyle}>Question *</label>
+              <input
+                style={fieldInputStyle}
+                value={faqQuestion}
+                onChange={e => setFaqQuestion(e.target.value)}
+                placeholder="e.g., How do I reset my password?"
+                required
+              />
+
+              <label style={fieldLabelStyle}>Answer *</label>
+              <textarea
+                style={textAreaStyle}
+                value={faqAnswer}
+                onChange={e => setFaqAnswer(e.target.value)}
+                placeholder="Detailed answer..."
+                required
+              />
+
+              <label style={fieldLabelStyle}>Display Order</label>
+              <input
+                style={fieldInputStyle}
+                type="number"
+                value={faqOrder}
+                onChange={e => setFaqOrder(e.target.value)}
+              />
+
+              <div style={modalFooterStyle}>
+                <button type="button" style={outlineBtnStyle} onClick={() => setShowFAQModal(false)}>Cancel</button>
+                <button type="submit" style={primaryBtnStyle} disabled={creating}>{creating ? "Saving..." : "Save FAQ"}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* CANNED RESPONSE MODAL */}
+      {showCannedModal && (
+        <div style={modalBackdropStyle} onClick={() => setShowCannedModal(false)}>
+          <div style={modalCardStyle} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div style={modalTitleStyle}>{selectedCanned ? "Edit" : "Create"} Template</div>
+              <button style={outlineBtnStyle} onClick={() => setShowCannedModal(false)}>Close</button>
+            </div>
+
+            <form onSubmit={handleSaveCanned}>
+              <label style={fieldLabelStyle}>Title *</label>
+              <input style={fieldInputStyle} value={cannedTitle} onChange={(e) => setCannedTitle(e.target.value)} placeholder="Template title" required />
+
+              <label style={fieldLabelStyle}>Response Text *</label>
+              <textarea style={textAreaStyle} value={cannedText} onChange={(e) => setCannedText(e.target.value)} placeholder="The full response text..." required />
+
+              <label style={fieldLabelStyle}>Search Tags</label>
+              <input style={fieldInputStyle} value={cannedTags} onChange={(e) => setCannedTags(e.target.value)} placeholder="keyword1,keyword2" />
+
+              <div style={modalFooterStyle}>
+                <button type="button" style={outlineBtnStyle} onClick={() => setShowCannedModal(false)}>Cancel</button>
+                <button type="submit" style={{ ...primaryBtnStyle, opacity: creating ? 0.7 : 1 }} disabled={creating}>
+                  {creating ? "Saving..." : "Save Template"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* SLA MODAL */}
+      {showSLAModal && (
+        <div style={modalBackdropStyle} onClick={() => setShowSLAModal(false)}>
+          <div style={modalCardStyle} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px" }}>
+              <div style={modalTitleStyle}>{selectedSLA ? "Edit" : "Add"} SLA Rule</div>
+              <button style={outlineBtnStyle} onClick={() => setShowSLAModal(false)}>Close</button>
+            </div>
+
+            <form onSubmit={handleSaveSLA}>
+              <label style={fieldLabelStyle}>Priority *</label>
+              <select style={fieldInputStyle} value={slaPriority} onChange={(e) => setSlaPriority(e.target.value)}>
+                <option value="1">High</option>
+                <option value="2">Medium</option>
+                <option value="3">Low</option>
+              </select>
+
+              <label style={fieldLabelStyle}>Response Target (Minutes) *</label>
+              <input type="number" style={fieldInputStyle} value={slaMinutes} onChange={(e) => setSlaMinutes(e.target.value)} placeholder="e.g. 60" required />
+
+              <div style={modalFooterStyle}>
+                <button type="button" style={outlineBtnStyle} onClick={() => setShowSLAModal(false)}>Cancel</button>
+                <button type="submit" style={{ ...primaryBtnStyle, opacity: creating ? 0.7 : 1 }} disabled={creating}>
+                  {creating ? "Saving..." : "Save Rule"}
                 </button>
               </div>
             </form>
@@ -1491,4 +1810,6 @@ export default function AdminDashboard({ onLogout }) {
       )}
     </div>
   );
-}
+};
+
+

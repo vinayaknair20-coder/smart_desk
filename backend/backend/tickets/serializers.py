@@ -40,8 +40,10 @@ class TicketSerializer(serializers.ModelSerializer):
     status_label = serializers.SerializerMethodField()
     thread_id = serializers.SerializerMethodField()
     
-    # Accept assigned_to as integer field (maps to assigned_user in model)
-    assigned_to = serializers.IntegerField(required=False, allow_null=True)
+    
+    # Allow AI/Backend to populate these (frontend won't send them)
+    queue = serializers.IntegerField(required=False)
+    priority_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Ticket

@@ -15,8 +15,8 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
     "Segoe UI", sans-serif;
-  background-color: #060515; /* same as login background */
-  color: #f9fafb;
+  background-color: #f0f4f8; /* Light Slate background */
+  color: #1e293b; /* Dark Slate text */
 }
 
 /* Optional: smooth rendering */

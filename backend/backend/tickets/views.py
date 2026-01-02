@@ -278,4 +278,21 @@ def ticket_thread_view(request, pk):
         )
 
     serializer = CommentThreadSerializer(thread)
+    serializer = CommentThreadSerializer(thread)
     return Response(serializer.data)
+
+from .ai_chat import get_ai_chat_response
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny]) # Allow public for landing page chat
+def chat_with_ai(request):
+    """
+    Endpoint for the AI Chatbot.
+    POST body: { "message": "..." }
+    """
+    message = request.data.get("message", "")
+    if not message:
+        return Response({"error": "Message required"}, status=400)
+    
+    result = get_ai_chat_response(message)
+    return Response(result)
