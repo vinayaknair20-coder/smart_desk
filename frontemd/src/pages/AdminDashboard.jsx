@@ -640,6 +640,7 @@ export default function AdminDashboard({ onLogout }) {
         await api.delete(`/api/tickets/${deleteTarget.id}/`);
         showNotification("Ticket deleted successfully");
         fetchTickets();
+        fetchAnalytics();
       } else if (deleteTarget.type === "kb") {
         await api.delete(`/api/knowledge-base/${deleteTarget.id}/`);
         showNotification("KB article deleted successfully");
@@ -723,6 +724,7 @@ export default function AdminDashboard({ onLogout }) {
       setShowTicketModal(false);
       showNotification("Ticket updated successfully");
       fetchTickets();
+      fetchAnalytics();
     } catch (error) {
       console.error("Failed to update ticket:", error);
       showNotification("Failed to update ticket", "error");
@@ -744,6 +746,7 @@ export default function AdminDashboard({ onLogout }) {
       );
       showNotification(`${openTickets.length} tickets resolved`);
       fetchTickets();
+      fetchAnalytics();
     } catch (error) {
       showNotification("Failed to resolve tickets", "error");
     }
@@ -754,6 +757,7 @@ export default function AdminDashboard({ onLogout }) {
       await api.patch(`/api/tickets/${ticketId}/`, { status: 2 });
       showNotification("Ticket resolved");
       fetchTickets();
+      fetchAnalytics();
       if (showTicketModal) setShowTicketModal(false);
     } catch (error) {
       showNotification("Failed to resolve ticket", "error");
@@ -1154,6 +1158,7 @@ export default function AdminDashboard({ onLogout }) {
               <thead>
                 <tr>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('id')}>Ticket ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('created_user_name')}>Requester {sortConfig.key === 'created_user_name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('subject')}>Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('queue')}>Queue {sortConfig.key === 'queue' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('status')}>Status {sortConfig.key === 'status' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
@@ -1166,6 +1171,7 @@ export default function AdminDashboard({ onLogout }) {
                   return (
                     <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>#{t.id}</td>
+                      <td style={tdBase} onClick={() => openTicketModal(t)}>{t.created_user_name || "User"}</td>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>{t.subject}</td>
                       <td style={tdBase} onClick={() => openTicketModal(t)}>{QUEUE_MAP[t.queue]}</td>
                       <td style={tdBase} onClick={() => openTicketModal(t)}><span style={statusBadge.style}>{statusBadge.text}</span></td>
@@ -1283,6 +1289,7 @@ export default function AdminDashboard({ onLogout }) {
               <thead>
                 <tr>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('id')}>ID {sortConfig.key === 'id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
+                  <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('created_user_name')}>Requester {sortConfig.key === 'created_user_name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('subject')}>Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('queue')}>Queue {sortConfig.key === 'queue' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
                   <th style={{ ...thStyle, cursor: "pointer" }} onClick={() => requestSort('priority_id')}>Priority {sortConfig.key === 'priority_id' && (sortConfig.direction === 'asc' ? '↑' : '↓')}</th>
@@ -1301,6 +1308,7 @@ export default function AdminDashboard({ onLogout }) {
                     return (
                       <tr key={t.id} style={{ backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc" }}>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>#{t.id}</td>
+                        <td style={tdBase} onClick={() => openTicketModal(t)}>{t.created_user_name || "User"}</td>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>{t.subject}</td>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>{QUEUE_MAP[t.queue]}</td>
                         <td style={tdBase} onClick={() => openTicketModal(t)}>{PRIORITY_MAP[t.priority_id]}</td>

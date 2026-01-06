@@ -35,6 +35,7 @@ class SLATimeSerializer(serializers.ModelSerializer):
 class TicketSerializer(serializers.ModelSerializer):
     """Main ticket serializer with display labels and agent assignment"""
     created_user = serializers.ReadOnlyField(source="created_user.id")
+    created_user_name = serializers.SerializerMethodField()
     queue_label = serializers.SerializerMethodField()
     priority_label = serializers.SerializerMethodField()
     status_label = serializers.SerializerMethodField()
@@ -47,8 +48,16 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = "__all__"
-        read_only_fields = ["id", "creation_time", "created_user"]
+        fields = [
+            'id', 'subject', 'description', 'queue', 'priority_id', 
+            'creation_time', 'status', 'created_user', 'created_user_name', 
+            'assigned_user', 'sla_time', 'queue_label', 'priority_label', 
+            'status_label', 'thread_id'
+        ]
+        read_only_fields = ["id", "creation_time", "created_user", "created_user_name"]
+
+    def get_created_user_name(self, obj):
+        return obj.created_user.username if obj.created_user else "User"
 
     def get_queue_label(self, obj):
         return obj.get_queue_display()
@@ -102,11 +111,15 @@ class TicketSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Serializer for individual comments"""
     user = serializers.ReadOnlyField(source="user.id")
+    user_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ["id", "thread", "user", "comment_time", "comment", "attachment"]
+        fields = ["id", "thread", "user", "user_name", "comment_time", "comment", "attachment"]
         read_only_fields = ["id", "user", "comment_time"]
+
+    def get_user_name(self, obj):
+        return obj.user.username if obj.user else "User"
 
 
 class CommentThreadSerializer(serializers.ModelSerializer):

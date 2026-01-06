@@ -257,7 +257,8 @@ export default function ChatInterface({
             id: "desc",
             comment: ticket.description,
             comment_time: ticket.creation_time,
-            user_id: ticket.created_user_id || 0, // Fallback if API doesn't return creator
+            user_id: ticket.created_user || 0,
+            user_name: ticket.created_user_name || "Customer",
             is_system: false,
             is_description: true
         },
@@ -293,7 +294,9 @@ export default function ChatInterface({
                         <div key={idx} style={messageWrapperStyle(isSelf)}>
                             {!isSelf && !isSystem && (
                                 <div style={senderNameStyle}>
-                                    {msg.is_description ? "Customer (Original Request)" : `User #${msg.user}`}
+                                    {msg.is_description
+                                        ? `${msg.user_name} (Original Request)`
+                                        : (msg.user_name || `User #${msg.user}`)}
                                 </div>
                             )}
 

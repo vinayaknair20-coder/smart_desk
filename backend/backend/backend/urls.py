@@ -40,6 +40,8 @@ router.register(r"sla-settings", SLATimeViewSet, basename="sla-setting")
 router.register(r"knowledge-base", KnowledgeBaseViewSet, basename="knowledge-base")
 router.register(r"canned-responses", CannedResponseViewSet, basename="canned")
 router.register(r"faqs", FAQViewSet, basename="faq") # NEW
+router.register(r"comment-threads", CommentThreadViewSet, basename="comment-thread")
+router.register(r"comments", CommentViewSet, basename="comment")
 
 urlpatterns = [
     # Django Admin

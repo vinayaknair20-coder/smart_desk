@@ -436,7 +436,8 @@ export default function AgentDashboard({ onLogout }) {
                     <span style={timeStyle}>{new Date(t.creation_time).toLocaleDateString()}</span>
                   </div>
                   <div style={subjectStyle}>{t.subject}</div>
-                  <div style={{ display: "flex", gap: "8px", fontSize: "11px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", fontSize: "11px" }}>
+                    <span style={{ color: "#64748b" }}>By: {t.created_user_name || "User"}</span>
                     <span style={{ color: priority.color, fontWeight: 500 }}>{priority.text} Priority</span>
                     <span style={{ color: t.status === 1 ? "#facc15" : "#4ade80" }}>
                       {t.status === 1 ? "Open" : "Closed"}
